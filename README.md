@@ -1,12 +1,12 @@
 # Chimly - Your AI Task Manager 🤖
 
-![Chimly Preview](https://raw.githubusercontent.com/ajfred20/chimly/main/public/assets/preview.png)
+![Chimly Preview](https://raw.githubusercontent.com/ajfred20/chimly-mvp/main/public/assets/preview.png)
 
 > 🌟 A modern AI Task manager website built with Next.js 15, Tailwind CSS, and Framer Motion
 
 ## 🔴 Live Preview
 
-Check out the live site at [Chimly](https://chimly.vercel.app)
+Check out the live site at [Chimly](https://chimly.ai)
 
 ## ✨ Features
 
@@ -35,8 +35,6 @@ cd chimly
 ```bash
 npm install
 ```
-#Backend API
-This is the link to the [Postman](https://martian-station-77788.postman.co/workspace/Chimly~be904c0e-41aa-42f1-800e-076fe58425c2/collection/32171163-45bd9878-8621-4338-85a0-7620cbe37a5d?action=share&creator=32171163)
 ## ⭐️ Support Us
 
 If you enjoy this project, please consider giving it a star on GitHub!
