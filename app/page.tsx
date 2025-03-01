@@ -1236,19 +1236,6 @@ export default function Home() {
                 Contact
               </Link>
             </div>
-
-            {/* Right Side - Credit */}
-            <p className="text-zinc-500 text-sm">
-              Built with ❤️ by{" "}
-              <Link
-                href="https://x.com/iamajfred_"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-emerald-400 hover:text-emerald-300 transition-colors"
-              >
-                Aj Fred
-              </Link>
-            </p>
           </div>
         </div>
       </footer>
