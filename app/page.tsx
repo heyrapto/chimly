@@ -18,23 +18,69 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-lg border-b border-white/10">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-white">
-              <img
-                src="/assets/logo.png"
-                alt="Chimly"
-                className="w-full max-w-[100px] sm:max-w-[150px]"
-              />
-            </Link>
-            <div className="flex items-center">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center gap-8">
+              <Link href="/" className="relative group flex items-center">
+                <div className="absolute -inset-2 bg-gradient-to-r from-zinc-100/5 via-zinc-500/10 to-zinc-100/5 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-pulse"></div>
+                <div className="relative flex items-center">
+                  <div className="relative overflow-hidden bg-gradient-to-tr from-zinc-900 via-zinc-800 to-zinc-900 border border-zinc-700/30">
+                    <Image
+                      src="/assets/logo.png"
+                      alt="Chimly"
+                      width={80}
+                      height={80}
+                      className="relative brightness-0 invert"
+                      priority
+                    />
+                  </div>
+                </div>
+              </Link>
+              
+              <div className="hidden md:flex items-center space-x-8">
+                <a href="#features" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium relative group">
+                  Features
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+                </a>
+                <a href="#pricing" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium relative group">
+                  Pricing
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+                </a>
+                <a href="#how-it-works" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium relative group">
+                  How It Works
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+                </a>
+                <a href="#faq" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium relative group">
+                  FAQ
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+                </a>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-6">
               <Link
                 href="/login"
-                className="bg-black text-white px-4 py-2 rounded-full border border-white/20 hover:bg-white/10 transition-colors"
+                className="hidden md:block text-zinc-300 hover:text-white transition-colors text-sm font-medium"
               >
-                Get Started
+                Log in
               </Link>
+              <Link
+                href="/signup"
+                className="relative group"
+              >
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-zinc-200/20 to-zinc-600/20 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                <div className="relative px-6 py-2.5 bg-black rounded-full border border-zinc-700/50 text-white hover:border-zinc-500 transition-all duration-300">
+                  <span className="relative z-10 font-medium text-sm">Get Started</span>
+                </div>
+              </Link>
+              
+              {/* Mobile menu button */}
+              <button className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-zinc-900/80 border border-zinc-700/50">
+                <svg width="18" height="11" viewBox="0 0 18 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0 0.5H18M0 5.5H18M0 10.5H18" stroke="white" strokeWidth="1.5"/>
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -74,7 +120,7 @@ export default function Home() {
 
           {/* Get Started Button */}
           <Link
-            href="/waitlist"
+            href="/signup"
             className="inline-flex bg-white text-black px-8 py-3 rounded-full hover:bg-white/90 transition-colors font-medium"
           >
             Get Started
@@ -174,7 +220,7 @@ export default function Home() {
       </section>
 
       {/* Key Features Section */}
-      <section className="py-24 px-4">
+      <section id="features" className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
@@ -364,7 +410,7 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-24 px-4 bg-zinc-900/50">
+      <section id="how-it-works" className="py-24 px-4 bg-zinc-900/50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
@@ -733,7 +779,7 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-24 px-4">
+      <section id="pricing" className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight text-white mb-4">
@@ -1061,7 +1107,7 @@ export default function Home() {
         </div>
       </section>
       {/* FAQs Section */}
-      <section className="py-24 px-4">
+      <section id="faq" className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
@@ -1170,71 +1216,151 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="py-24 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="relative group overflow-hidden bg-zinc-900/50 border border-zinc-800/50 rounded-2xl p-8 md:p-12 backdrop-blur-sm">
-            {/* Flickering Grid Background */}
-            <div className="absolute inset-0 grid-pattern opacity-40 group-hover:opacity-60 transition-opacity" />
-
+        <div className="max-w-6xl mx-auto">
+          <div className="relative overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 border border-zinc-700/30 rounded-3xl p-8 md:p-16">
+            {/* Decorative elements */}
+            <div className="absolute top-0 left-0 w-full h-full opacity-30">
+              <div className="absolute top-10 left-10 w-40 h-40 bg-white/5 rounded-full filter blur-3xl"></div>
+              <div className="absolute bottom-10 right-10 w-60 h-60 bg-white/5 rounded-full filter blur-3xl"></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full grid-pattern opacity-20"></div>
+            </div>
+            
             {/* Content */}
-            <div className="relative z-10">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Ready to Transform Your Workflow?
-              </h2>
-              <p className="text-zinc-400 text-lg mb-8 max-w-2xl mx-auto">
-                Join thousands of teams who have already revolutionized their
-                productivity with Chimly AI.
-              </p>
-              <Link
-                href="/waitlist"
-                className="inline-flex items-center gap-2 bg-white text-black px-8 py-3 rounded-full hover:bg-white/90 transition-colors font-medium group"
-              >
-                Get Started
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
+              <div className="text-left max-w-2xl">
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                  Ready to Transform Your Workflow?
+                </h2>
+                <p className="text-zinc-300 text-lg mb-8 leading-relaxed">
+                  Join thousands of teams who have already revolutionized their productivity with Chimly AI. Get started today and see the difference.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <Link
+                    href="/waitlist"
+                    className="inline-flex items-center justify-center gap-2 bg-white text-black px-8 py-3.5 rounded-full hover:bg-white/90 transition-all duration-300 font-medium group"
+                  >
+                    <span>Get Started</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                  <Link
+                    href="#features"
+                    className="inline-flex items-center justify-center gap-2 bg-transparent border border-zinc-600 text-white px-8 py-3.5 rounded-full hover:bg-white/5 transition-all duration-300"
+                  >
+                    <span>Learn More</span>
+                  </Link>
+                </div>
+              </div>
+              
+              <div className="hidden lg:block relative">
+                <div className="absolute inset-0 bg-white/5 rounded-full filter blur-xl"></div>
+                <div className="relative bg-zinc-800/50 border border-zinc-700/30 rounded-2xl p-6 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-3 h-3 rounded-full bg-zinc-600"></div>
+                    <div className="w-3 h-3 rounded-full bg-zinc-600"></div>
+                    <div className="w-3 h-3 rounded-full bg-zinc-600"></div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="h-3 w-40 bg-zinc-700/50 rounded-full"></div>
+                    <div className="h-3 w-32 bg-zinc-700/50 rounded-full"></div>
+                    <div className="h-3 w-36 bg-zinc-700/50 rounded-full"></div>
+                    <div className="h-10 w-full bg-zinc-700/30 rounded-lg mt-4"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 border-t border-zinc-800/50">
+      <footer className="pt-16 pb-8 px-4 border-t border-zinc-800/50 bg-black/50">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            {/* Left Side - Company and Year */}
-            <div className="flex items-center gap-2">
-              <img
-                src="/assets/logo.png"
-                alt="Chimly"
-                className="brightness-0 invert w-full max-w-[70px] sm:max-w-[100px]"
-              />
-              <div className="flex items-center gap-2">
-                <span className="text-zinc-500">•</span>
-                <span className="text-zinc-500">
-                  {new Date().getFullYear()}
-                </span>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-16">
+            {/* Company Info */}
+            <div className="col-span-1">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="relative overflow-hidden ">
+                  <Image
+                    src="/assets/logo.png"
+                    alt="Chimly"
+                    width={80}
+                    height={80}
+                    className="relative brightness-0 invert"
+                    priority
+                  />
+                </div>
               </div>
+              <p className="text-zinc-400 text-sm mb-6">
+                Simplify your workflow with AI-powered productivity tools designed for modern teams.
+              </p>
             </div>
-
-            {/* Center - Links */}
-            <div className="flex items-center gap-6 text-sm text-zinc-400 order-first sm:order-none w-full sm:w-auto justify-center">
-              <Link
-                href="/privacy"
-                className="hover:text-white transition-colors"
-              >
-                Privacy
-              </Link>
-              <Link
-                href="/terms"
-                className="hover:text-white transition-colors"
-              >
-                Terms
-              </Link>
-              <Link
-                href="/contact"
-                className="hover:text-white transition-colors"
-              >
-                Contact
-              </Link>
+            
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-white font-medium mb-4">Product</h3>
+              <ul className="space-y-3">
+                <li>
+                  <a href="#features" className="text-zinc-400 text-sm hover:text-white transition-colors">Features</a>
+                </li>
+                <li>
+                  <a href="#pricing" className="text-zinc-400 text-sm hover:text-white transition-colors">Pricing</a>
+                </li>
+                <li>
+                  <a href="#faq" className="text-zinc-400 text-sm hover:text-white transition-colors">FAQ</a>
+                </li>
+              </ul>
+            </div>
+            
+            {/* Resources */}
+            <div>
+              <h3 className="text-white font-medium mb-4">Resources</h3>
+              <ul className="space-y-3">
+                <li>
+                  <Link href="/help" className="text-zinc-400 text-sm hover:text-white transition-colors">Help Center</Link>
+                </li>
+                <li>
+                  <Link href="/community" className="text-zinc-400 text-sm hover:text-white transition-colors">Community</Link>
+                </li>
+                <li>
+                  <Link href="/blog" className="text-zinc-400 text-sm hover:text-white transition-colors">Blog</Link>
+                </li>
+              </ul>
+            </div>
+            
+            {/* Legal */}
+            <div>
+              <h3 className="text-white font-medium mb-4">Legal</h3>
+              <ul className="space-y-3">
+                <li>
+                  <Link href="/privacy" className="text-zinc-400 text-sm hover:text-white transition-colors">Privacy Policy</Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="text-zinc-400 text-sm hover:text-white transition-colors">Terms of Service</Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="text-zinc-400 text-sm hover:text-white transition-colors">Contact Us</Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-zinc-500 text-sm">
+              © {new Date().getFullYear()} Chimly. All rights reserved.
+            </div>
+            
+            <div className="flex items-center gap-6">
+              <a href="#" className="text-zinc-400 hover:text-white transition-colors">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                </svg>
+              </a>
+              <a href="#" className="text-zinc-400 hover:text-white transition-colors">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
