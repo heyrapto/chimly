@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState<string>("home");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const sections = ["home", "features", "how-it-works", "pricing", "faq"];
@@ -55,7 +56,7 @@ export default function Home() {
               <Link href="/" className="relative group flex items-center">
                 <div className="absolute -inset-2 bg-gradient-to-r from-zinc-100/5 via-zinc-500/10 to-zinc-100/5 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-pulse"></div>
                 <div className="relative flex items-center">
-                  <div className="relative overflow-hidden rounded-full p-1.5 bg-gradient-to-tr from-zinc-900 via-zinc-800 to-zinc-900 border border-zinc-700/30">
+                  <div className="relative overflow-hidden">
                     <Image
                       src="/assets/logo.png"
                       alt="Chimly"
@@ -144,7 +145,11 @@ export default function Home() {
               </Link>
               
               {/* Mobile menu button */}
-              <button className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-zinc-900/80 border border-zinc-700/50">
+              <button
+                className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-zinc-900/80 border border-zinc-700/50"
+                onClick={() => setMobileMenuOpen(true)}
+                aria-label="Open mobile menu"
+              >
                 <svg width="18" height="11" viewBox="0 0 18 11" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M0 0.5H18M0 5.5H18M0 10.5H18" stroke="white" strokeWidth="1.5"/>
                 </svg>
@@ -153,6 +158,70 @@ export default function Home() {
           </div>
         </div>
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur flex flex-col items-center justify-center transition-all">
+          <button
+            className="absolute top-6 right-6 text-white text-3xl"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Close mobile menu"
+          >
+            &times;
+          </button>
+          <nav className="flex flex-col gap-8 text-center">
+            <a
+              href="#home"
+              className={`text-2xl font-semibold ${activeSection === "home" ? "text-emerald-400" : "text-white"}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Home
+            </a>
+            <a
+              href="#features"
+              className={`text-2xl font-semibold ${activeSection === "features" ? "text-emerald-400" : "text-white"}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Features
+            </a>
+            <a
+              href="#pricing"
+              className={`text-2xl font-semibold ${activeSection === "pricing" ? "text-emerald-400" : "text-white"}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Pricing
+            </a>
+            <a
+              href="#how-it-works"
+              className={`text-2xl font-semibold ${activeSection === "how-it-works" ? "text-emerald-400" : "text-white"}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              How It Works
+            </a>
+            <a
+              href="#faq"
+              className={`text-2xl font-semibold ${activeSection === "faq" ? "text-emerald-400" : "text-white"}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              FAQ
+            </a>
+            <a
+              href="/login"
+              className="text-2xl font-semibold text-white"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Log in
+            </a>
+            <a
+              href="/signup"
+              className="text-2xl font-semibold text-emerald-400"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Get Started
+            </a>
+          </nav>
+        </div>
+      )}
 
       {/* Hero Section */}
       <div id="home" className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20">
