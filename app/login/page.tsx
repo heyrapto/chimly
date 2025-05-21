@@ -70,7 +70,6 @@ export default function LoginPage() {
           alt="Chimly"
           width={140}
           height={140}
-          className="brightness-0 invert"
         />
       </div>
 

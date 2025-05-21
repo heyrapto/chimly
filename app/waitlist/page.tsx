@@ -212,7 +212,7 @@ export default function WaitlistPage() {
             alt="Chimly"
             width={100}
             height={30}
-            className="mx-auto brightness-0 invert sm:w-[140px] sm:h-[40px]"
+            className="mx-auto sm:w-[140px] sm:h-[40px]"
           />
         </div>
 

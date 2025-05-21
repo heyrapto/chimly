@@ -13,8 +13,38 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [activeSection, setActiveSection] = useState<string>("home");
+
+  useEffect(() => {
+    const sections = ["home", "features", "how-it-works", "pricing", "faq"];
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.3 } // Adjust threshold as needed
+    );
+
+    sections.forEach((section) => {
+      const element = document.getElementById(section);
+      if (element) observer.observe(element);
+    });
+
+    return () => {
+      sections.forEach((section) => {
+        const element = document.getElementById(section);
+        if (element) observer.unobserve(element);
+      });
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900">
       {/* Navbar */}
@@ -25,13 +55,12 @@ export default function Home() {
               <Link href="/" className="relative group flex items-center">
                 <div className="absolute -inset-2 bg-gradient-to-r from-zinc-100/5 via-zinc-500/10 to-zinc-100/5 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-pulse"></div>
                 <div className="relative flex items-center">
-                  <div className="relative overflow-hidden bg-gradient-to-tr from-zinc-900 via-zinc-800 to-zinc-900 border border-zinc-700/30">
+                  <div className="relative overflow-hidden rounded-full p-1.5 bg-gradient-to-tr from-zinc-900 via-zinc-800 to-zinc-900 border border-zinc-700/30">
                     <Image
                       src="/assets/logo.png"
                       alt="Chimly"
-                      width={80}
-                      height={80}
-                      className="relative brightness-0 invert"
+                      width={100}
+                      height={100}
                       priority
                     />
                   </div>
@@ -39,21 +68,60 @@ export default function Home() {
               </Link>
               
               <div className="hidden md:flex items-center space-x-8">
-                <a href="#features" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium relative group">
+                <a 
+                  href="#home" 
+                  className={`text-sm font-medium relative group ${
+                    activeSection === "home" ? "text-white" : "text-zinc-400 hover:text-white"
+                  } transition-colors`}
+                >
+                  Home
+                  <span className={`absolute -bottom-1 left-0 h-0.5 bg-white transition-all duration-300 ${
+                    activeSection === "home" ? "w-full" : "w-0 group-hover:w-full"
+                  }`}></span>
+                </a>
+                <a 
+                  href="#features" 
+                  className={`text-sm font-medium relative group ${
+                    activeSection === "features" ? "text-white" : "text-zinc-400 hover:text-white"
+                  } transition-colors`}
+                >
                   Features
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+                  <span className={`absolute -bottom-1 left-0 h-0.5 bg-white transition-all duration-300 ${
+                    activeSection === "features" ? "w-full" : "w-0 group-hover:w-full"
+                  }`}></span>
                 </a>
-                <a href="#pricing" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium relative group">
+                <a 
+                  href="#pricing" 
+                  className={`text-sm font-medium relative group ${
+                    activeSection === "pricing" ? "text-white" : "text-zinc-400 hover:text-white"
+                  } transition-colors`}
+                >
                   Pricing
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+                  <span className={`absolute -bottom-1 left-0 h-0.5 bg-white transition-all duration-300 ${
+                    activeSection === "pricing" ? "w-full" : "w-0 group-hover:w-full"
+                  }`}></span>
                 </a>
-                <a href="#how-it-works" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium relative group">
+                <a 
+                  href="#how-it-works" 
+                  className={`text-sm font-medium relative group ${
+                    activeSection === "how-it-works" ? "text-white" : "text-zinc-400 hover:text-white"
+                  } transition-colors`}
+                >
                   How It Works
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+                  <span className={`absolute -bottom-1 left-0 h-0.5 bg-white transition-all duration-300 ${
+                    activeSection === "how-it-works" ? "w-full" : "w-0 group-hover:w-full"
+                  }`}></span>
                 </a>
-                <a href="#faq" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium relative group">
+                <a 
+                  href="#faq" 
+                  className={`text-sm font-medium relative group ${
+                    activeSection === "faq" ? "text-white" : "text-zinc-400 hover:text-white"
+                  } transition-colors`}
+                >
                   FAQ
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+                  <span className={`absolute -bottom-1 left-0 h-0.5 bg-white transition-all duration-300 ${
+                    activeSection === "faq" ? "w-full" : "w-0 group-hover:w-full"
+                  }`}></span>
                 </a>
               </div>
             </div>
@@ -87,7 +155,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20">
+      <div id="home" className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20">
         <FloatingBackground />
 
         {/* Available Badge */}
@@ -1285,7 +1353,6 @@ export default function Home() {
                     alt="Chimly"
                     width={80}
                     height={80}
-                    className="relative brightness-0 invert"
                     priority
                   />
                 </div>

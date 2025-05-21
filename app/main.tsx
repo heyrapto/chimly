@@ -18,7 +18,7 @@ export default function Home() {
               src="/assets/logo.png"
               alt="Chimly logo"
               fill
-              className="object-contain brightness-0 invert"
+              className="object-contain"
             />
           </Link>
           <div className="flex items-center gap-8">

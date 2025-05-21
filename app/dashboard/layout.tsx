@@ -78,7 +78,7 @@ export default function DashboardLayout({
               alt="Chimly"
               width={120}
               height={40}
-              className={`brightness-0 invert transition-all duration-300 ${
+              className={`transition-all duration-300 ${
                 isCollapsed ? "hidden" : "block"
               }`}
             />

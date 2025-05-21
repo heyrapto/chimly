@@ -28,7 +28,6 @@ export default function PrivacyPage() {
             alt="Chimly"
             width={120}
             height={120}
-            className="brightness-0 invert"
           />
         </div>
 

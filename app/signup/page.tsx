@@ -56,7 +56,6 @@ export default function SignUpPage() {
           width={140}
           height={140}
           priority
-          className="brightness-0 invert"
         />
       </div>
 

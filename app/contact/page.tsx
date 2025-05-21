@@ -161,7 +161,6 @@ export default function ContactPage() {
                 alt="Chimly"
                 width={140}
                 height={140}
-                className="brightness-0 invert"
               />
             </div>
 
