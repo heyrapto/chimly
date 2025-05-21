@@ -55,6 +55,7 @@ export default function SignUpPage() {
           alt="Chimly"
           width={140}
           height={140}
+          priority
           className="brightness-0 invert"
         />
       </div>
