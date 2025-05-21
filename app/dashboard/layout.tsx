@@ -242,7 +242,9 @@ export default function DashboardLayout({
       )}
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto w-full lg:ml-64 transition-all duration-300">
+      <main className={`flex-1 overflow-y-auto w-full transition-all duration-300 mt-12 md:mt-0 ${
+        isCollapsed ? "lg:ml-20" : "lg:ml-64"
+      }`}>
         <div className="p-4 sm:p-8">
           <div className="max-w-7xl mx-auto">{children}</div>
         </div>
