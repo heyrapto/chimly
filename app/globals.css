@@ -10,8 +10,12 @@
   scroll-behavior: smooth;
 }
 
+html {
+  background-color: black;
+}
+
 body {
-  @apply bg-black;
+  background-color: black;
 }
 
 .container {
