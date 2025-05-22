@@ -21,11 +21,13 @@ import { useEffect, useState } from "react";
 
 interface Task {
   _id: string;
-  title: string;
-  description: string;
-  status: string;
-  dueDate: string;
-  assignedTo: string;
+  activity: string;
+  time: string;
+  duration: string;
+  completed: boolean;
+  statusEmoji: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function TasksPage() {
@@ -62,21 +64,20 @@ export default function TasksPage() {
           }
         );
 
-        const responseText = await response.text();
-        console.log("Raw Response:", responseText);
-
         if (!response.ok) {
-          throw new Error(`Failed to fetch tasks: ${responseText}`);
+          const errorText = await response.text();
+          throw new Error(`Failed to fetch tasks: ${errorText}`);
         }
 
-        try {
-          const data = JSON.parse(responseText);
-          console.log("API Response Data:", data);
-          console.log("Schedules:", data.schedules);
-          setTasks(data.schedules || []);
-        } catch (parseError) {
-          console.error("Error parsing response:", parseError);
-          throw new Error("Invalid response format from server");
+        const data = await response.json();
+        console.log("API Response Data:", data);
+        
+        if (data.success && Array.isArray(data.tasks)) {
+          console.log("Tasks found:", data.tasks.length);
+          setTasks(data.tasks || []);
+        } else {
+          console.error("Unexpected response format:", data);
+          setTasks([]);
         }
       } catch (err: any) {
         console.error("Error fetching tasks:", err);
@@ -110,6 +111,17 @@ export default function TasksPage() {
       </div>
     );
   }
+
+  // Filter tasks based on search query and status filter
+  const filteredTasks = tasks.filter(task => {
+    const matchesSearch = task.activity?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (statusFilter === 'all') return matchesSearch;
+    if (statusFilter === 'completed') return matchesSearch && task.completed;
+    if (statusFilter === 'active') return matchesSearch && !task.completed;
+    
+    return matchesSearch;
+  });
 
   return (
     <div className="p-4 sm:p-8">
@@ -161,53 +173,77 @@ export default function TasksPage() {
 
         {/* Tasks List */}
         <div className="space-y-4">
-          {tasks.length === 0 ? (
+          {filteredTasks.length === 0 ? (
             <div className="text-center text-zinc-400">No tasks found</div>
           ) : (
-            tasks.map((task) => (
+            filteredTasks.map((task) => (
               <div
                 key={task._id}
-                className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl"
+                className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-zinc-700 transition-all duration-300"
               >
                 <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-medium text-white">{task.title}</h3>
-                    <p className="text-sm text-zinc-400">{task.description}</p>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1">
+                      <span className="text-xl" role="img" aria-label="status">
+                        {task.statusEmoji || "⏳"}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-white">{task.activity}</h3>
+                      <div className="flex items-center gap-3 mt-1">
+                        <span className="flex items-center text-xs text-zinc-400">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {task.duration} min
+                        </span>
+                        <span className="text-xs text-zinc-500">
+                          Created {new Date(task.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <button className="p-1 hover:bg-zinc-800 rounded">
-                    <MoreVertical className="w-4 h-4 text-zinc-400" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      className={`px-2 py-1 rounded text-xs ${task.completed ? 'bg-emerald-500/20 text-emerald-500' : 'bg-zinc-700/20 text-zinc-400'}`}
+                    >
+                      {task.completed ? 'Completed' : 'In Progress'}
+                    </button>
+                    <button className="p-1 hover:bg-zinc-800 rounded">
+                      <MoreVertical className="w-4 h-4 text-zinc-400" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
           )}
         </div>
 
-        {/* Pagination */}
-        <div className="mt-8 flex justify-center">
-          <nav className="flex items-center gap-2">
-            <button className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors">
-              Previous
-            </button>
-            <div className="flex items-center gap-1">
-              {[1, 2, 3].map((page) => (
-                <button
-                  key={page}
-                  className={`px-3 py-1 rounded-lg ${
-                    page === 1
-                      ? "bg-emerald-600 text-white"
-                      : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-                  } transition-colors`}
-                >
-                  {page}
-                </button>
-              ))}
-            </div>
-            <button className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors">
-              Next
-            </button>
-          </nav>
-        </div>
+        {/* Pagination - only show if we have tasks */}
+        {filteredTasks.length > 0 && (
+          <div className="mt-8 flex justify-center">
+            <nav className="flex items-center gap-2">
+              <button className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors">
+                Previous
+              </button>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3].map((page) => (
+                  <button
+                    key={page}
+                    className={`px-3 py-1 rounded-lg ${
+                      page === 1
+                        ? "bg-emerald-600 text-white"
+                        : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                    } transition-colors`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+              <button className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors">
+                Next
+              </button>
+            </nav>
+          </div>
+        )}
       </div>
     </div>
   );
