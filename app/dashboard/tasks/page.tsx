@@ -8,6 +8,8 @@ import {
   Search,
   Tag,
   MoreVertical,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import {
   Select,
@@ -32,10 +34,13 @@ interface Task {
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const tasksPerPage = 10;
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -75,6 +80,7 @@ export default function TasksPage() {
         if (data.success && Array.isArray(data.tasks)) {
           console.log("Tasks found:", data.tasks.length);
           setTasks(data.tasks || []);
+          setTotalCount(data.count || data.tasks.length);
         } else {
           console.error("Unexpected response format:", data);
           setTasks([]);
@@ -89,6 +95,11 @@ export default function TasksPage() {
 
     fetchTasks();
   }, []);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
 
   if (loading) {
     return (
@@ -123,6 +134,70 @@ export default function TasksPage() {
     return matchesSearch;
   });
 
+  // Calculate pagination
+  const totalFilteredTasks = filteredTasks.length;
+  const totalPages = Math.max(1, Math.ceil(totalFilteredTasks / tasksPerPage));
+  
+  // Ensure current page is within valid range
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  
+  // Get current page tasks
+  const startIndex = (safeCurrentPage - 1) * tasksPerPage;
+  const endIndex = Math.min(startIndex + tasksPerPage, totalFilteredTasks);
+  const currentTasks = filteredTasks.slice(startIndex, endIndex);
+
+  // Generate page numbers array for pagination
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxPagesToShow = 5;
+    
+    if (totalPages <= maxPagesToShow) {
+      // Show all pages if total pages are less than max pages to show
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Always include first page
+      pageNumbers.push(1);
+      
+      // Calculate start and end of page numbers to show
+      let startPage = Math.max(2, safeCurrentPage - 1);
+      let endPage = Math.min(totalPages - 1, safeCurrentPage + 1);
+      
+      // Adjust if at the beginning
+      if (safeCurrentPage <= 3) {
+        endPage = 4;
+      }
+      
+      // Adjust if at the end
+      if (safeCurrentPage >= totalPages - 2) {
+        startPage = totalPages - 3;
+      }
+      
+      // Add ellipsis after first page if needed
+      if (startPage > 2) {
+        pageNumbers.push('...');
+      }
+      
+      // Add middle pages
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+      }
+      
+      // Add ellipsis before last page if needed
+      if (endPage < totalPages - 1) {
+        pageNumbers.push('...');
+      }
+      
+      // Always include last page if more than 1 page
+      if (totalPages > 1) {
+        pageNumbers.push(totalPages);
+      }
+    }
+    
+    return pageNumbers;
+  };
+
   return (
     <div className="p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
@@ -130,7 +205,9 @@ export default function TasksPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white">Tasks</h1>
-            <p className="text-zinc-400 mt-1">View and track your tasks</p>
+            <p className="text-zinc-400 mt-1">
+              View and track your tasks ({totalFilteredTasks} {totalFilteredTasks === 1 ? 'task' : 'tasks'})
+            </p>
           </div>
           <Link
             href="/dashboard/tasks/new"
@@ -173,10 +250,20 @@ export default function TasksPage() {
 
         {/* Tasks List */}
         <div className="space-y-4">
-          {filteredTasks.length === 0 ? (
-            <div className="text-center text-zinc-400">No tasks found</div>
+          {currentTasks.length === 0 ? (
+            <div className="text-center text-zinc-400 py-12">
+              <div className="mb-4">
+                <CheckSquare className="w-12 h-12 mx-auto text-zinc-700" />
+              </div>
+              <h3 className="text-xl font-medium text-zinc-300 mb-2">No tasks found</h3>
+              <p className="text-zinc-500">
+                {filteredTasks.length === 0 
+                  ? "You don't have any tasks yet. Create your first task to get started."
+                  : "No tasks match your current filters."}
+              </p>
+            </div>
           ) : (
-            filteredTasks.map((task) => (
+            currentTasks.map((task) => (
               <div
                 key={task._id}
                 className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-zinc-700 transition-all duration-300"
@@ -221,27 +308,61 @@ export default function TasksPage() {
         {filteredTasks.length > 0 && (
           <div className="mt-8 flex justify-center">
             <nav className="flex items-center gap-2">
-              <button className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors">
-                Previous
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={safeCurrentPage === 1}
+                className={`p-2 rounded-lg transition-colors flex items-center ${
+                  safeCurrentPage === 1 
+                    ? 'text-zinc-600 cursor-not-allowed' 
+                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span className="sr-only md:not-sr-only md:ml-2">Previous</span>
               </button>
+              
               <div className="flex items-center gap-1">
-                {[1, 2, 3].map((page) => (
-                  <button
-                    key={page}
-                    className={`px-3 py-1 rounded-lg ${
-                      page === 1
-                        ? "bg-emerald-600 text-white"
-                        : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-                    } transition-colors`}
-                  >
-                    {page}
-                  </button>
+                {getPageNumbers().map((page, index) => (
+                  typeof page === 'number' ? (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 py-1 rounded-lg transition-colors ${
+                        page === safeCurrentPage
+                          ? "bg-emerald-600 text-white"
+                          : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ) : (
+                    <span key={index} className="px-1 text-zinc-600">
+                      {page}
+                    </span>
+                  )
                 ))}
               </div>
-              <button className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors">
-                Next
+              
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={safeCurrentPage === totalPages}
+                className={`p-2 rounded-lg transition-colors flex items-center ${
+                  safeCurrentPage === totalPages 
+                    ? 'text-zinc-600 cursor-not-allowed' 
+                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                <span className="sr-only md:not-sr-only md:mr-2">Next</span>
+                <ChevronRight className="w-4 h-4" />
               </button>
             </nav>
+          </div>
+        )}
+
+        {/* Showing results summary */}
+        {filteredTasks.length > 0 && (
+          <div className="mt-4 text-center text-xs text-zinc-500">
+            Showing {startIndex + 1}-{endIndex} of {totalFilteredTasks} tasks
           </div>
         )}
       </div>
