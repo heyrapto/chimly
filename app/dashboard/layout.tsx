@@ -36,7 +36,7 @@ export default function DashboardLayout({
     const userId = localStorage.getItem("userId");
 
     if (!token || !userId) {
-      router.push("/login");
+      window.location.href = "/login";
       return;
     }
 
@@ -277,7 +277,7 @@ export default function DashboardLayout({
               <div className="flex-1 min-w-0" onClick={() => {
                 localStorage.removeItem("token");
                 localStorage.removeItem("userId");
-                router.push("/login");
+                window.location.href = "/login";
               }}>
                 <p className="text-sm font-medium text-white truncate">
                   {userInfo?.name || 'Loading...'}
