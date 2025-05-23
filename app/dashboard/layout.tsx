@@ -27,6 +27,7 @@ export default function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [userInfo, setUserInfo] = useState<{ name: string; email: string } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -35,7 +36,38 @@ export default function DashboardLayout({
 
     if (!token || !userId) {
       router.push("/login");
+      return;
     }
+
+    // Fetch user information
+    const fetchUserInfo = async () => {
+      try {
+        const response = await fetch(
+          `https://chimlybackendmain.onrender.com/api/dashboard/user/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user info");
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setUserInfo({
+            name: data.user.name || data.user.username,
+            email: data.user.email,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    };
+
+    fetchUserInfo();
   }, [router]);
 
   return (
@@ -217,7 +249,9 @@ export default function DashboardLayout({
           >
             <div className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer">
               <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                <span className="text-sm font-medium text-emerald-500">JD</span>
+                <span className="text-sm font-medium text-emerald-500">
+                  {userInfo?.name?.charAt(0) || 'U'}
+                </span>
               </div>
               <div className="flex-1 min-w-0" onClick={() => {
                 localStorage.removeItem("token");
@@ -225,10 +259,10 @@ export default function DashboardLayout({
                 router.push("/login");
               }}>
                 <p className="text-sm font-medium text-white truncate">
-                  John Doe
+                  {userInfo?.name || 'Loading...'}
                 </p>
                 <p className="text-xs text-zinc-500 truncate">
-                  john@example.com
+                  {userInfo?.email || 'Loading...'}
                 </p>
               </div>
               <LogOut className="w-4 h-4 text-zinc-400"/>

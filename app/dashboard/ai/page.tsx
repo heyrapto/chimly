@@ -4,6 +4,7 @@ import { Bot, Send, Clock, Check, CheckCheck, Sparkles, Smile, ChevronUp, Chevro
 import { useState, useEffect, useRef, ReactElement } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 // Quick reply suggestions based on context
 const quickReplies = {
@@ -67,9 +68,9 @@ const StructuredMessage = ({ content }: { content: string }) => {
     const flushList = () => {
       if (listItems.length > 0) {
         elements.push(
-          <ul key={elements.length} className="list-disc list-inside space-y-1 mb-4 text-zinc-200">
+          <ul key={elements.length} className="list-disc list-inside space-y-2 mb-6 text-zinc-200">
             {listItems.map((item, idx) => (
-              <li key={idx} className="leading-relaxed">{item}</li>
+              <li key={idx} className="leading-relaxed" dangerouslySetInnerHTML={{ __html: item }} />
             ))}
           </ul>
         );
@@ -80,12 +81,30 @@ const StructuredMessage = ({ content }: { content: string }) => {
     const flushSection = () => {
       if (currentSection.length > 0) {
         elements.push(
-          <div key={elements.length} className="mb-4">
+          <div key={elements.length} className="mb-6">
             {currentSection}
           </div>
         );
         currentSection = [];
       }
+    };
+
+    const formatText = (text: string) => {
+      // First handle bold text with colon pattern (e.g., **Task Name:**)
+      let formattedText = text.replace(/\*\*(.*?):\*\*/g, '<strong class="font-semibold text-white">$1:</strong>');
+      
+      // Then handle regular bold text **text** or __text__
+      formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-white">$1</strong>');
+      formattedText = formattedText.replace(/__(.*?)__/g, '<strong class="font-semibold text-white">$1</strong>');
+      
+      // Handle italic text *text* or _text_
+      formattedText = formattedText.replace(/\*(.*?)\*/g, '<em class="italic text-zinc-200">$1</em>');
+      formattedText = formattedText.replace(/_(.*?)_/g, '<em class="italic text-zinc-200">$1</em>');
+      
+      // Handle inline code `code`
+      formattedText = formattedText.replace(/`(.*?)`/g, '<code class="bg-zinc-800 px-1.5 py-0.5 rounded text-sm font-mono text-emerald-400">$1</code>');
+      
+      return formattedText;
     };
 
     lines.forEach((line, index) => {
@@ -102,7 +121,7 @@ const StructuredMessage = ({ content }: { content: string }) => {
         } else {
           inCodeBlock = false;
           elements.push(
-            <div key={elements.length} className="mb-4">
+            <div key={elements.length} className="mb-6">
               <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-700">
                 {codeLanguage && (
                   <div className="text-xs text-zinc-400 mb-2 font-mono">{codeLanguage}</div>
@@ -127,7 +146,7 @@ const StructuredMessage = ({ content }: { content: string }) => {
         flushList();
         flushSection();
         elements.push(
-          <h1 key={elements.length} className="text-2xl font-bold text-white mb-4 border-b border-zinc-700 pb-2">
+          <h1 key={elements.length} className="text-2xl font-bold text-white mb-6 border-b border-zinc-700 pb-3">
             {trimmedLine.slice(2)}
           </h1>
         );
@@ -135,7 +154,7 @@ const StructuredMessage = ({ content }: { content: string }) => {
         flushList();
         flushSection();
         elements.push(
-          <h2 key={elements.length} className="text-xl font-semibold text-white mb-3 mt-6">
+          <h2 key={elements.length} className="text-xl font-semibold text-white mb-4 mt-8">
             {trimmedLine.slice(3)}
           </h2>
         );
@@ -143,7 +162,7 @@ const StructuredMessage = ({ content }: { content: string }) => {
         flushList();
         flushSection();
         elements.push(
-          <h3 key={elements.length} className="text-lg font-medium text-white mb-2 mt-4">
+          <h3 key={elements.length} className="text-lg font-medium text-white mb-3 mt-6">
             {trimmedLine.slice(4)}
           </h3>
         );
@@ -151,7 +170,7 @@ const StructuredMessage = ({ content }: { content: string }) => {
         flushList();
         flushSection();
         elements.push(
-          <h4 key={elements.length} className="text-base font-medium text-zinc-200 mb-2 mt-3">
+          <h4 key={elements.length} className="text-base font-medium text-zinc-200 mb-3 mt-4">
             {trimmedLine.slice(5)}
           </h4>
         );
@@ -159,7 +178,7 @@ const StructuredMessage = ({ content }: { content: string }) => {
       // Handle bullet points
       else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
         flushSection();
-        listItems.push(trimmedLine.slice(2));
+        listItems.push(formatText(trimmedLine.slice(2)));
       }
       // Handle numbered lists
       else if (/^\d+\.\s/.test(trimmedLine)) {
@@ -167,34 +186,16 @@ const StructuredMessage = ({ content }: { content: string }) => {
         if (listItems.length === 0) {
           // Start new numbered list
         }
-        listItems.push(trimmedLine.replace(/^\d+\.\s/, ''));
+        listItems.push(formatText(trimmedLine.replace(/^\d+\.\s/, '')));
       }
-      // Handle bold text and other formatting
+      // Handle regular text
       else if (trimmedLine) {
         flushList();
-        
-        // Process inline formatting
-        let formattedLine = trimmedLine;
-        
-        // Bold text with colon pattern (e.g., **Date:** Today)
-        formattedLine = formattedLine.replace(/\*\*(.*?):\*\*/g, '<strong class="font-semibold text-white">$1:</strong>');
-        
-        // Regular bold text **text** or __text__
-        formattedLine = formattedLine.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-white">$1</strong>');
-        formattedLine = formattedLine.replace(/__(.*?)__/g, '<strong class="font-semibold text-white">$1</strong>');
-        
-        // Italic text *text* or _text_
-        formattedLine = formattedLine.replace(/\*(.*?)\*/g, '<em class="italic text-zinc-200">$1</em>');
-        formattedLine = formattedLine.replace(/_(.*?)_/g, '<em class="italic text-zinc-200">$1</em>');
-        
-        // Inline code `code`
-        formattedLine = formattedLine.replace(/`(.*?)`/g, '<code class="bg-zinc-800 px-1.5 py-0.5 rounded text-sm font-mono text-emerald-400">$1</code>');
-        
         currentSection.push(
           <p 
             key={currentSection.length} 
-            className="text-zinc-200 leading-relaxed mb-3 last:mb-0"
-            dangerouslySetInnerHTML={{ __html: formattedLine }}
+            className="text-zinc-200 leading-relaxed mb-4 last:mb-0"
+            dangerouslySetInnerHTML={{ __html: formatText(trimmedLine) }}
           />
         );
       } else {
@@ -211,19 +212,105 @@ const StructuredMessage = ({ content }: { content: string }) => {
     return elements;
   };
 
-  return <div className="space-y-2">{parseContent(content)}</div>;
+  return <div className="space-y-4">{parseContent(content)}</div>;
+};
+
+// Loading skeleton component for messages
+const MessageSkeleton = () => {
+  return (
+    <div className="space-y-4">
+      {/* AI Message Skeleton */}
+      <div className="flex justify-start">
+        <div className="max-w-[85%] rounded-2xl p-5 bg-zinc-800/50">
+          <div className="space-y-3">
+            <div className="h-4 bg-zinc-700/50 rounded w-3/4 animate-pulse" />
+            <div className="h-4 bg-zinc-700/50 rounded w-1/2 animate-pulse" />
+            <div className="h-4 bg-zinc-700/50 rounded w-2/3 animate-pulse" />
+          </div>
+          <div className="flex items-center gap-2 mt-4 pt-3 border-t border-zinc-700/50">
+            <div className="h-3 bg-zinc-700/50 rounded w-16 animate-pulse" />
+          </div>
+        </div>
+      </div>
+      {/* User Message Skeleton */}
+      <div className="flex justify-end">
+        <div className="max-w-[85%] rounded-2xl p-5 bg-emerald-500/10">
+          <div className="space-y-3">
+            <div className="h-4 bg-emerald-500/20 rounded w-2/3 animate-pulse" />
+            <div className="h-4 bg-emerald-500/20 rounded w-1/2 animate-pulse" />
+          </div>
+          <div className="flex items-center gap-2 mt-2">
+            <div className="h-3 bg-emerald-500/20 rounded w-16 animate-pulse" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default function AIPage() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showQuickReplies, setShowQuickReplies] = useState(true);
   const [activeCategory, setActiveCategory] = useState<keyof typeof quickReplies>("general");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const router = useRouter();
+
+  // Fetch conversation history on component mount
+  useEffect(() => {
+    const fetchConversationHistory = async () => {
+      try {
+        setIsLoadingHistory(true);
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+
+        if (!token || !userId) {
+          router.push("/login");
+          return;
+        }
+
+        const response = await fetch(
+          `https://chimlybackendmain.onrender.com/api/conversations/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("userId");
+            router.push("/login");
+            return;
+          }
+          throw new Error("Failed to fetch conversation history");
+        }
+
+        const data = await response.json();
+        if (data.success && data.data.history) {
+          // Convert timestamp strings to Date objects
+          const formattedMessages = data.data.history.map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp),
+          }));
+          setMessages(formattedMessages);
+        }
+      } catch (error) {
+        console.error("Error fetching conversation history:", error);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    fetchConversationHistory();
+  }, [router]);
 
   // Listen for sidebar state changes
   useEffect(() => {
@@ -282,10 +369,19 @@ export default function AIPage() {
   const handleSend = async () => {
     if (!message.trim()) return;
 
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+
+    if (!token || !userId) {
+      router.push("/login");
+      return;
+    }
+
     const newMessage: Message = {
       role: "user",
       content: message,
       timestamp: new Date(),
+      status: "sending",
     };
 
     setMessages((prev) => [...prev, newMessage]);
@@ -293,9 +389,28 @@ export default function AIPage() {
     setIsLoading(true);
 
     try {
-      const token = localStorage.getItem("userId");
+      // First, add the user message to the conversation
+      const messageResponse = await fetch(
+        `https://chimlybackendmain.onrender.com/api/conversations/${userId}/message`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            role: "user",
+            content: message,
+          }),
+        }
+      );
 
-      const response = await fetch(
+      if (!messageResponse.ok) {
+        throw new Error("Failed to save message");
+      }
+
+      // Then, get the AI response
+      const aiResponse = await fetch(
         "https://chimlybackendmain.onrender.com/api/schedule",
         {
           method: "POST",
@@ -305,35 +420,42 @@ export default function AIPage() {
           },
           body: JSON.stringify({
             input: message,
-            userId: token,
+            userId: userId,
           }),
         }
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("API Error Details:", errorData);
-        throw new Error(`API error: ${response.status}`);
+      if (!aiResponse.ok) {
+        throw new Error("Failed to get AI response");
       }
 
-      const data = await response.json();
-      console.log(data);
+      const data = await aiResponse.json();
+      
+      // Update the user message status
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg === newMessage ? { ...msg, status: "delivered" } : msg
+        )
+      );
+
+      // Add the AI response
       if (data.message) {
-        const aiResponse: Message = {
+        const aiMessage: Message = {
           role: "assistant",
           content: data.message,
           timestamp: new Date(),
         };
-        setMessages((prev) => [...prev, aiResponse]);
+        setMessages((prev) => [...prev, aiMessage]);
       }
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Error in conversation:", error);
       const errorMessage: Message = {
         role: "assistant",
         content: "Sorry, I'm having trouble connecting right now. Please try again later.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -424,70 +546,74 @@ export default function AIPage() {
       <div className={`flex-1 overflow-y-auto px-4 ${showQuickReplies ? 'pb-24' : 'pb-4'} scrollbar-hide`}>
         <div className="w-full mx-auto flex flex-col min-h-full">
           <div className="space-y-4 py-4">
-            {messages.map((msg, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`flex ${msg.role === "assistant" ? "justify-start" : "justify-end"}`}
-              >
-                <div
-                  className={`max-w-[85%] rounded-2xl p-5 ${
-                    msg.role === "assistant"
-                      ? "bg-zinc-800 text-white"
-                      : "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20"
-                  }`}
+            {isLoadingHistory ? (
+              <MessageSkeleton />
+            ) : (
+              messages.map((msg, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`flex ${msg.role === "assistant" ? "justify-start" : "justify-end"}`}
                 >
-                  {msg.role === "assistant" ? (
-                    <StructuredMessage content={msg.content} />
-                  ) : (
-                    <div className="space-y-2">
-                      <p className="whitespace-pre-wrap text-white/90 leading-relaxed">{msg.content}</p>
-                      <div className="flex items-center gap-2 text-xs text-white/70">
+                  <div
+                    className={`max-w-[85%] rounded-2xl p-5 ${
+                      msg.role === "assistant"
+                        ? "bg-zinc-800 text-white"
+                        : "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20"
+                    }`}
+                  >
+                    {msg.role === "assistant" ? (
+                      <StructuredMessage content={msg.content} />
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="whitespace-pre-wrap text-white/90 leading-relaxed">{msg.content}</p>
+                        <div className="flex items-center gap-2 text-xs text-white/70">
+                          <span>
+                            {msg.timestamp.toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                          {msg.role === "user" && (
+                            <span className="flex items-center gap-1">
+                              {msg.status === "sending" && (
+                                <>
+                                  <Clock className="w-3 h-3" />
+                                  <span>Sending</span>
+                                </>
+                              )}
+                              {msg.status === "sent" && (
+                                <>
+                                  <Check className="w-3 h-3" />
+                                  <span>Sent</span>
+                                </>
+                              )}
+                              {msg.status === "delivered" && (
+                                <>
+                                  <CheckCheck className="w-3 h-3" />
+                                  <span>Delivered</span>
+                                </>
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {msg.role === "assistant" && (
+                      <div className="flex items-center gap-2 mt-4 pt-3 border-t border-zinc-700/50 text-xs opacity-70">
                         <span>
                           {msg.timestamp.toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",
                           })}
                         </span>
-                        {msg.role === "user" && (
-                          <span className="flex items-center gap-1">
-                            {msg.status === "sending" && (
-                              <>
-                                <Clock className="w-3 h-3" />
-                                <span>Sending</span>
-                              </>
-                            )}
-                            {msg.status === "sent" && (
-                              <>
-                                <Check className="w-3 h-3" />
-                                <span>Sent</span>
-                              </>
-                            )}
-                            {msg.status === "delivered" && (
-                              <>
-                                <CheckCheck className="w-3 h-3" />
-                                <span>Delivered</span>
-                              </>
-                            )}
-                          </span>
-                        )}
                       </div>
-                    </div>
-                  )}
-                  {msg.role === "assistant" && (
-                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-zinc-700/50 text-xs opacity-70">
-                      <span>
-                        {msg.timestamp.toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                    )}
+                  </div>
+                </motion.div>
+              ))
+            )}
             {isLoading && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   Clock,
@@ -20,7 +20,41 @@ export default function TaskDetailsPage() {
   const params = useParams();
   const taskId = params.id as string;
   const [comment, setComment] = useState("");
+  const [userName, setUserName] = useState("");
   const hour = new Date().getHours();
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+
+        if (!token || !userId) return;
+
+        const response = await fetch(
+          `https://chimlybackendmain.onrender.com/api/user/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user info");
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setUserName(data.user.name || data.user.username);
+        }
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
 
   // Mock data - in a real app, fetch task details based on taskId
   const task = {
@@ -53,7 +87,6 @@ export default function TaskDetailsPage() {
   };
 
   const { text: greeting, icon } = getGreeting();
-  const userName = "Daniel"; // Should come from auth context
 
   return (
     <div className="p-6">
@@ -70,7 +103,7 @@ export default function TaskDetailsPage() {
             <div className="flex items-center gap-2">
               <span className="text-2xl">{icon}</span>
               <h1 className="text-2xl font-semibold text-white">
-                {greeting} {userName}
+                {greeting} {userName || 'there'}
               </h1>
             </div>
             <p className="text-zinc-400 mt-1">Here's your task details</p>
