@@ -140,7 +140,7 @@ export default function DashboardPage() {
           Recent Activity
         </h2>
         <div className="space-y-4">
-          {stats?.recentActivities.map((activity, index) => (
+          {stats?.recentActivities?.map((activity, index) => (
             <div key={index} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <div className="w-2 h-2 rounded-full bg-emerald-500" />
               <p className="text-sm text-zinc-400">
