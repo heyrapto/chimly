@@ -1,8 +1,87 @@
 "use client";
 
 import { CheckSquare, Users, BarChart } from "lucide-react";
+import { useEffect, useState } from "react";
+
+interface DashboardStats {
+  newTasks: number;
+  totalTasks: number;
+  teamMembers: number;
+  completionRate: number;
+  recentActivities: {
+    description: string;
+    timeAgo: string;
+  }[];
+}
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+        
+        const response = await fetch(
+          `https://chimlybackendmain.onrender.com/api/dashboard/stats/${userId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              userId: userId,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch dashboard stats");
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setStats(data.data);
+        } else {
+          throw new Error(data.message || "Failed to fetch dashboard stats");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex gap-2">
+          <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce" />
+          <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce delay-100" />
+          <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce delay-200" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-red-500 text-center">
+          <p className="text-lg font-semibold mb-2">Error Loading Dashboard</p>
+          <p className="text-sm text-zinc-400">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Header */}
@@ -15,7 +94,7 @@ export default function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-        {/* Stat Card */}
+        {/* Total Tasks Card */}
         <div className="p-4 sm:p-6 bg-zinc-900 border border-zinc-800 rounded-xl">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-emerald-500/10 rounded-lg">
@@ -23,12 +102,12 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-zinc-400">Total Tasks</p>
-              <p className="text-2xl font-bold text-white">248</p>
+              <p className="text-2xl font-bold text-white">{stats?.totalTasks || 0}</p>
             </div>
           </div>
         </div>
 
-        {/* Stat Card */}
+        {/* Team Members Card */}
         <div className="p-4 sm:p-6 bg-zinc-900 border border-zinc-800 rounded-xl">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-blue-500/10 rounded-lg">
@@ -36,12 +115,12 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-zinc-400">Team Members</p>
-              <p className="text-2xl font-bold text-white">12</p>
+              <p className="text-2xl font-bold text-white">{stats?.teamMembers || 0}</p>
             </div>
           </div>
         </div>
 
-        {/* Stat Card */}
+        {/* Completion Rate Card */}
         <div className="p-4 sm:p-6 bg-zinc-900 border border-zinc-800 rounded-xl">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-purple-500/10 rounded-lg">
@@ -49,7 +128,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-zinc-400">Completion Rate</p>
-              <p className="text-2xl font-bold text-white">87%</p>
+              <p className="text-2xl font-bold text-white">{stats?.completionRate || 0}%</p>
             </div>
           </div>
         </div>
@@ -61,35 +140,18 @@ export default function DashboardPage() {
           Recent Activity
         </h2>
         <div className="space-y-4">
-          {/* Activity Item */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <div className="w-2 h-2 rounded-full bg-emerald-500" />
-            <p className="text-sm text-zinc-400">
-              <span className="text-white">Sarah</span> completed task{" "}
-              <span className="text-white">Homepage Redesign</span>
-            </p>
-            <span className="text-xs text-zinc-500 sm:ml-auto">2h ago</span>
-          </div>
-
-          {/* Activity Item */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
-            <p className="text-sm text-zinc-400">
-              <span className="text-white">Mike</span> added new task{" "}
-              <span className="text-white">API Integration</span>
-            </p>
-            <span className="text-xs text-zinc-500 sm:ml-auto">4h ago</span>
-          </div>
-
-          {/* Activity Item */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <div className="w-2 h-2 rounded-full bg-purple-500" />
-            <p className="text-sm text-zinc-400">
-              <span className="text-white">Anna</span> updated project{" "}
-              <span className="text-white">Mobile App</span>
-            </p>
-            <span className="text-xs text-zinc-500 sm:ml-auto">6h ago</span>
-          </div>
+          {stats?.recentActivities.map((activity, index) => (
+            <div key={index} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <div className="w-2 h-2 rounded-full bg-emerald-500" />
+              <p className="text-sm text-zinc-400">
+                {activity.description}
+              </p>
+              <span className="text-xs text-zinc-500 sm:ml-auto">{activity.timeAgo}</span>
+            </div>
+          ))}
+          {(!stats?.recentActivities || stats.recentActivities.length === 0) && (
+            <p className="text-sm text-zinc-400 text-center py-4">No recent activities</p>
+          )}
         </div>
       </div>
     </>

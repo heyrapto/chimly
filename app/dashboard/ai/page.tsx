@@ -1,7 +1,7 @@
 "use client";
 
-import { Bot, Send, Clock, Check, CheckCheck, Sparkles, Smile } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { Bot, Send, Clock, Check, CheckCheck, Sparkles, Smile, ChevronUp, ChevronDown } from "lucide-react";
+import { useState, useEffect, useRef, ReactElement } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -53,11 +53,173 @@ interface Message {
   status?: "sending" | "sent" | "delivered";
 }
 
+// Component to render structured AI messages
+const StructuredMessage = ({ content }: { content: string }) => {
+  const parseContent = (text: string) => {
+    const lines = text.split('\n');
+    const elements: ReactElement[] = [];
+    let currentSection: ReactElement[] = [];
+    let listItems: string[] = [];
+    let inCodeBlock = false;
+    let codeContent = '';
+    let codeLanguage = '';
+
+    const flushList = () => {
+      if (listItems.length > 0) {
+        elements.push(
+          <ul key={elements.length} className="list-disc list-inside space-y-1 mb-4 text-zinc-200">
+            {listItems.map((item, idx) => (
+              <li key={idx} className="leading-relaxed">{item}</li>
+            ))}
+          </ul>
+        );
+        listItems = [];
+      }
+    };
+
+    const flushSection = () => {
+      if (currentSection.length > 0) {
+        elements.push(
+          <div key={elements.length} className="mb-4">
+            {currentSection}
+          </div>
+        );
+        currentSection = [];
+      }
+    };
+
+    lines.forEach((line, index) => {
+      const trimmedLine = line.trim();
+
+      // Handle code blocks
+      if (trimmedLine.startsWith('```')) {
+        if (!inCodeBlock) {
+          flushList();
+          flushSection();
+          inCodeBlock = true;
+          codeLanguage = trimmedLine.slice(3).trim();
+          codeContent = '';
+        } else {
+          inCodeBlock = false;
+          elements.push(
+            <div key={elements.length} className="mb-4">
+              <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-700">
+                {codeLanguage && (
+                  <div className="text-xs text-zinc-400 mb-2 font-mono">{codeLanguage}</div>
+                )}
+                <pre className="text-sm text-zinc-200 font-mono overflow-x-auto">
+                  <code>{codeContent}</code>
+                </pre>
+              </div>
+            </div>
+          );
+        }
+        return;
+      }
+
+      if (inCodeBlock) {
+        codeContent += line + '\n';
+        return;
+      }
+
+      // Handle headings
+      if (trimmedLine.startsWith('# ')) {
+        flushList();
+        flushSection();
+        elements.push(
+          <h1 key={elements.length} className="text-2xl font-bold text-white mb-4 border-b border-zinc-700 pb-2">
+            {trimmedLine.slice(2)}
+          </h1>
+        );
+      } else if (trimmedLine.startsWith('## ')) {
+        flushList();
+        flushSection();
+        elements.push(
+          <h2 key={elements.length} className="text-xl font-semibold text-white mb-3 mt-6">
+            {trimmedLine.slice(3)}
+          </h2>
+        );
+      } else if (trimmedLine.startsWith('### ')) {
+        flushList();
+        flushSection();
+        elements.push(
+          <h3 key={elements.length} className="text-lg font-medium text-white mb-2 mt-4">
+            {trimmedLine.slice(4)}
+          </h3>
+        );
+      } else if (trimmedLine.startsWith('#### ')) {
+        flushList();
+        flushSection();
+        elements.push(
+          <h4 key={elements.length} className="text-base font-medium text-zinc-200 mb-2 mt-3">
+            {trimmedLine.slice(5)}
+          </h4>
+        );
+      }
+      // Handle bullet points
+      else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
+        flushSection();
+        listItems.push(trimmedLine.slice(2));
+      }
+      // Handle numbered lists
+      else if (/^\d+\.\s/.test(trimmedLine)) {
+        flushSection();
+        if (listItems.length === 0) {
+          // Start new numbered list
+        }
+        listItems.push(trimmedLine.replace(/^\d+\.\s/, ''));
+      }
+      // Handle bold text and other formatting
+      else if (trimmedLine) {
+        flushList();
+        
+        // Process inline formatting
+        let formattedLine = trimmedLine;
+        
+        // Bold text with colon pattern (e.g., **Date:** Today)
+        formattedLine = formattedLine.replace(/\*\*(.*?):\*\*/g, '<strong class="font-semibold text-white">$1:</strong>');
+        
+        // Regular bold text **text** or __text__
+        formattedLine = formattedLine.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-white">$1</strong>');
+        formattedLine = formattedLine.replace(/__(.*?)__/g, '<strong class="font-semibold text-white">$1</strong>');
+        
+        // Italic text *text* or _text_
+        formattedLine = formattedLine.replace(/\*(.*?)\*/g, '<em class="italic text-zinc-200">$1</em>');
+        formattedLine = formattedLine.replace(/_(.*?)_/g, '<em class="italic text-zinc-200">$1</em>');
+        
+        // Inline code `code`
+        formattedLine = formattedLine.replace(/`(.*?)`/g, '<code class="bg-zinc-800 px-1.5 py-0.5 rounded text-sm font-mono text-emerald-400">$1</code>');
+        
+        currentSection.push(
+          <p 
+            key={currentSection.length} 
+            className="text-zinc-200 leading-relaxed mb-3 last:mb-0"
+            dangerouslySetInnerHTML={{ __html: formattedLine }}
+          />
+        );
+      } else {
+        // Empty line - flush current section
+        flushList();
+        flushSection();
+      }
+    });
+
+    // Flush any remaining content
+    flushList();
+    flushSection();
+
+    return elements;
+  };
+
+  return <div className="space-y-2">{parseContent(content)}</div>;
+};
+
 export default function AIPage() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showQuickReplies, setShowQuickReplies] = useState(true);
   const [activeCategory, setActiveCategory] = useState<keyof typeof quickReplies>("general");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -84,42 +246,6 @@ export default function AIPage() {
 
     return () => observer.disconnect();
   }, []);
-
-  // Load messages from localStorage on mount
-  useEffect(() => {
-    const savedMessages = localStorage.getItem("aiConversation");
-    if (savedMessages) {
-      try {
-        const parsedMessages = JSON.parse(savedMessages, (key, value) => {
-          // Convert ISO date strings back to Date objects
-          if (key === "timestamp" && value) {
-            return new Date(value);
-          }
-          return value;
-        });
-        setMessages(parsedMessages);
-      } catch (error) {
-        console.error("Error loading messages:", error);
-        localStorage.removeItem("aiConversation"); // Clear invalid data
-      }
-    }
-  }, []);
-
-  // Save messages to localStorage whenever they change
-  useEffect(() => {
-    try {
-      const serializedMessages = JSON.stringify(messages, (key, value) => {
-        // Convert Date objects to ISO strings for storage
-        if (value instanceof Date) {
-          return value.toISOString();
-        }
-        return value;
-      });
-      localStorage.setItem("aiConversation", serializedMessages);
-    } catch (error) {
-      console.error("Error saving messages:", error);
-    }
-  }, [messages]);
 
   // Update active category based on last message
   useEffect(() => {
@@ -204,12 +330,10 @@ export default function AIPage() {
       console.error("Error sending message:", error);
       const errorMessage: Message = {
         role: "assistant",
-        content:
-          "Sorry, I'm having trouble connecting right now. Please try again later.",
+        content: "Sorry, I'm having trouble connecting right now. Please try again later.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -236,13 +360,31 @@ export default function AIPage() {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setShowTemplates(!showTemplates)}
-          className="px-4 py-2 text-sm text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors flex items-center gap-2"
-        >
-          <Sparkles className="w-4 h-4" />
-          Templates
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowQuickReplies(!showQuickReplies)}
+            className="px-4 py-2 text-sm text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors flex items-center gap-2"
+          >
+            {showQuickReplies ? (
+              <>
+                <ChevronDown className="w-4 h-4" />
+                Hide Suggestions
+              </>
+            ) : (
+              <>
+                <ChevronUp className="w-4 h-4" />
+                Show Suggestions
+              </>
+            )}
+          </button>
+          <button
+            onClick={() => setShowTemplates(!showTemplates)}
+            className="px-4 py-2 text-sm text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors flex items-center gap-2"
+          >
+            <Sparkles className="w-4 h-4" />
+            Templates
+          </button>
+        </div>
       </div>
 
       {/* Message Templates */}
@@ -279,7 +421,7 @@ export default function AIPage() {
       </AnimatePresence>
 
       {/* Chat Container */}
-      <div className="flex-1 overflow-y-auto px-4 pb-24">
+      <div className={`flex-1 overflow-y-auto px-4 ${showQuickReplies ? 'pb-24' : 'pb-4'} scrollbar-hide`}>
         <div className="w-full mx-auto flex flex-col min-h-full">
           <div className="space-y-4 py-4">
             {messages.map((msg, index) => (
@@ -290,30 +432,59 @@ export default function AIPage() {
                 className={`flex ${msg.role === "assistant" ? "justify-start" : "justify-end"}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-2xl p-4 ${
+                  className={`max-w-[85%] rounded-2xl p-5 ${
                     msg.role === "assistant"
                       ? "bg-zinc-800 text-white"
-                      : "bg-emerald-500 text-white"
+                      : "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20"
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
-                  <div className="flex items-center gap-2 mt-2 text-xs opacity-70">
-                    <span>
-                      {msg.timestamp.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    {msg.role === "user" && (
-                      <span>
-                        {msg.status === "sending" && <Clock className="w-3 h-3" />}
-                        {msg.status === "sent" && <Check className="w-3 h-3" />}
-                        {msg.status === "delivered" && (
-                          <CheckCheck className="w-3 h-3" />
+                  {msg.role === "assistant" ? (
+                    <StructuredMessage content={msg.content} />
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="whitespace-pre-wrap text-white/90 leading-relaxed">{msg.content}</p>
+                      <div className="flex items-center gap-2 text-xs text-white/70">
+                        <span>
+                          {msg.timestamp.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                        {msg.role === "user" && (
+                          <span className="flex items-center gap-1">
+                            {msg.status === "sending" && (
+                              <>
+                                <Clock className="w-3 h-3" />
+                                <span>Sending</span>
+                              </>
+                            )}
+                            {msg.status === "sent" && (
+                              <>
+                                <Check className="w-3 h-3" />
+                                <span>Sent</span>
+                              </>
+                            )}
+                            {msg.status === "delivered" && (
+                              <>
+                                <CheckCheck className="w-3 h-3" />
+                                <span>Delivered</span>
+                              </>
+                            )}
+                          </span>
                         )}
+                      </div>
+                    </div>
+                  )}
+                  {msg.role === "assistant" && (
+                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-zinc-700/50 text-xs opacity-70">
+                      <span>
+                        {msg.timestamp.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </span>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -338,37 +509,40 @@ export default function AIPage() {
       </div>
 
       {/* Quick Replies */}
-      {messages.length > 0 && (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 border-t border-zinc-800 bg-black relative z-10"
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-1 h-4 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-full" />
-            <h3 className="text-sm font-medium text-zinc-400">Quick Suggestions</h3>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {quickReplies[activeCategory].map((reply, index) => (
-              <motion.button
-                key={index}
-                onClick={() => handleQuickReply(reply)}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="group px-4 py-2.5 text-sm text-white bg-zinc-800/50 backdrop-blur-sm rounded-xl hover:bg-zinc-700/50 transition-all duration-300 whitespace-nowrap border border-zinc-700/50 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10"
-              >
-                <span className="relative">
-                  {reply}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-emerald-600 group-hover:w-full transition-all duration-300" />
-                </span>
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
-      )}
+      <AnimatePresence>
+        {showQuickReplies && messages.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="p-4 border-t border-zinc-800 bg-black relative z-10"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-1 h-4 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-full" />
+              <h3 className="text-sm font-medium text-zinc-400">Quick Suggestions</h3>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {quickReplies[activeCategory].map((reply, index) => (
+                <motion.button
+                  key={index}
+                  onClick={() => handleQuickReply(reply)}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="group px-4 py-2.5 text-sm text-white bg-zinc-800/50 backdrop-blur-sm rounded-xl hover:bg-zinc-700/50 transition-all duration-300 whitespace-nowrap border border-zinc-700/50 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10"
+                >
+                  <span className="relative">
+                    {reply}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-emerald-600 group-hover:w-full transition-all duration-300" />
+                  </span>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Input Area */}
       <div 

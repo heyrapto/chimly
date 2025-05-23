@@ -10,6 +10,7 @@ import {
   MoreVertical,
   ChevronLeft,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 import {
   Select,
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
+import { useRouter } from "next/navigation";
 interface Task {
   _id: string;
   activity: string;
@@ -41,6 +42,8 @@ export default function TasksPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const tasksPerPage = 10;
+  const router = useRouter();
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -52,7 +55,10 @@ export default function TasksPage() {
         console.log("UserId:", userId);
 
         if (!token || !userId) {
-          throw new Error("No authentication token found");
+          // Store the current path to redirect back after login
+          const returnUrl = encodeURIComponent(window.location.pathname);
+          router.push(`/login?from=${returnUrl}`);
+          return;
         }
 
         const response = await fetch(
@@ -70,6 +76,13 @@ export default function TasksPage() {
         );
 
         if (!response.ok) {
+          if (response.status === 401) {
+            // Handle unauthorized access
+            localStorage.removeItem("token");
+            localStorage.removeItem("userId");
+            router.push("/login");
+            return;
+          }
           const errorText = await response.text();
           throw new Error(`Failed to fetch tasks: ${errorText}`);
         }
@@ -94,12 +107,44 @@ export default function TasksPage() {
     };
 
     fetchTasks();
-  }, []);
+  }, [router]);
 
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, statusFilter]);
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+      const response = await fetch(
+        `https://chimlybackendmain.onrender.com/api/schedule`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            taskId,
+            userId,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete task");
+      }
+
+      // Remove the task from the local state
+      setTasks(tasks.filter(task => task._id !== taskId));
+      setOpenMenuId(null);
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      // You might want to show an error message to the user here
+    }
+  };
 
   if (loading) {
     return (
@@ -294,9 +339,26 @@ export default function TasksPage() {
                     >
                       {task.completed ? 'Completed' : 'In Progress'}
                     </button>
-                    <button className="p-1 hover:bg-zinc-800 rounded">
-                      <MoreVertical className="w-4 h-4 text-zinc-400" />
-                    </button>
+                    <div className="relative">
+                      <button 
+                        className="p-1 hover:bg-zinc-800 rounded"
+                        onClick={() => setOpenMenuId(openMenuId === task._id ? null : task._id)}
+                      >
+                        <MoreVertical className="w-4 h-4 text-zinc-400" />
+                      </button>
+                      
+                      {openMenuId === task._id && (
+                        <div className="absolute right-0 mt-1 w-48 bg-zinc-800 rounded-lg shadow-lg border border-zinc-700 py-1 z-10">
+                          <button
+                            onClick={() => handleDeleteTask(task._id)}
+                            className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-zinc-700 flex items-center gap-2"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete Task
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

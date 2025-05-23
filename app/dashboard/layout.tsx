@@ -219,7 +219,11 @@ export default function DashboardLayout({
               <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
                 <span className="text-sm font-medium text-emerald-500">JD</span>
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0" onClick={() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("userId");
+                router.push("/login");
+              }}>
                 <p className="text-sm font-medium text-white truncate">
                   John Doe
                 </p>
@@ -227,7 +231,7 @@ export default function DashboardLayout({
                   john@example.com
                 </p>
               </div>
-              <LogOut className="w-4 h-4 text-zinc-400" />
+              <LogOut className="w-4 h-4 text-zinc-400"/>
             </div>
           </div>
         </aside>
