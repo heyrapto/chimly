@@ -18,7 +18,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function DashboardLayout({
   children,
@@ -29,6 +29,7 @@ export default function DashboardLayout({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userInfo, setUserInfo] = useState<{ name: string; email: string } | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -69,6 +70,13 @@ export default function DashboardLayout({
 
     fetchUserInfo();
   }, [router]);
+
+  const isActive = (path: string) => {
+    if (path === '/dashboard') {
+      return pathname === path;
+    }
+    return pathname.startsWith(path);
+  };
 
   return (
     <div className="flex h-screen bg-black">
@@ -130,8 +138,12 @@ export default function DashboardLayout({
           <nav className="space-y-1">
             <Link
               href="/dashboard"
-              className={`flex items-center gap-3 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded-lg transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                 isCollapsed ? "lg:justify-center" : ""
+              } ${
+                isActive('/dashboard')
+                  ? "bg-emerald-500/10 text-emerald-500"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
               }`}
             >
               <Home
@@ -142,8 +154,12 @@ export default function DashboardLayout({
 
             <Link
               href="/dashboard/ai"
-              className={`flex items-center gap-3 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded-lg transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                 isCollapsed ? "lg:justify-center" : ""
+              } ${
+                isActive('/dashboard/ai')
+                  ? "bg-emerald-500/10 text-emerald-500"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
               }`}
             >
               <Bot className={`${isCollapsed ? "lg:w-8 lg:h-8" : "w-4 h-4"}`} />
@@ -152,8 +168,12 @@ export default function DashboardLayout({
 
             <Link
               href="/dashboard/tasks"
-              className={`flex items-center gap-3 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded-lg transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                 isCollapsed ? "lg:justify-center" : ""
+              } ${
+                isActive('/dashboard/tasks')
+                  ? "bg-emerald-500/10 text-emerald-500"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
               }`}
             >
               <CheckSquare
