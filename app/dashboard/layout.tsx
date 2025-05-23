@@ -57,10 +57,11 @@ export default function DashboardLayout({
         }
 
         const data = await response.json();
-        if (data.success) {
+        console.log(data);
+        if (data) {
           setUserInfo({
-            name: data.user.name || data.user.username,
-            email: data.user.email,
+            name: data.data.username,
+            email: data.data.email,
           });
         }
       } catch (error) {
