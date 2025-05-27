@@ -344,7 +344,7 @@ export default function TasksPage() {
                       <div>
                         <h3 className="text-white font-medium">{task.activity}</h3>
                         <p className="text-sm text-zinc-400">
-                          {task.time} • {task.duration}
+                          {task.time} • {task.duration + " Minutes"}
                         </p>
                       </div>
                     </div>

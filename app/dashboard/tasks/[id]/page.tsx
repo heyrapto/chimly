@@ -17,7 +17,13 @@ import {
   Sparkles,
   Copy,
   Share2,
-  Archive
+  Archive,
+  ListChecks,
+  Lightbulb,
+  Target,
+  Zap,
+  Star,
+  Info
 } from "lucide-react";
 import Link from "next/link";
 import type { JSX } from 'react';
@@ -188,12 +194,29 @@ export default function TaskDetail() {
 
       if (trimmedLine.startsWith('# ')) {
         flushList();
-        const [title, emoji] = trimmedLine.slice(2).split(/(\s*[^\w\s]\s*)$/).filter(Boolean);
+        const title = trimmedLine.slice(2).trim();
+        let icon;
+        
+        // Map titles to appropriate icons
+        if (title.toLowerCase().includes('task')) {
+          icon = <ListChecks className="w-6 h-6 text-emerald-500" />;
+        } else if (title.toLowerCase().includes('preparation')) {
+          icon = <Target className="w-6 h-6 text-emerald-500" />;
+        } else if (title.toLowerCase().includes('tips')) {
+          icon = <Lightbulb className="w-6 h-6 text-emerald-500" />;
+        } else if (title.toLowerCase().includes('energy')) {
+          icon = <Zap className="w-6 h-6 text-emerald-500" />;
+        } else if (title.toLowerCase().includes('benefits')) {
+          icon = <Star className="w-6 h-6 text-emerald-500" />;
+        } else {
+          icon = <Info className="w-6 h-6 text-emerald-500" />;
+        }
+
         elements.push(
           <div key={elements.length} className="mb-8">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-transparent flex items-center gap-3">
-              {title.trim()}
-              {emoji && <span className="text-3xl">{emoji.trim()}</span>}
+            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+              {title}
+              {icon}
             </h2>
           </div>
         );
@@ -248,17 +271,26 @@ export default function TaskDetail() {
   };
 
   const getDaysUntilDue = (dueDate: string) => {
-    const today = new Date();
-    const due = new Date(dueDate);
-    const diffTime = due.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    if (!dueDate) return null;
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time part for accurate day calculation
+      const due = new Date(dueDate);
+      due.setHours(0, 0, 0, 0);
+      const diffTime = due.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    } catch (error) {
+      console.error("Error calculating days until due:", error);
+      return null;
+    }
   };
 
   const getDueDateStatus = (dueDate: string, completed: boolean) => {
     if (completed) return { text: "Completed", color: "text-emerald-500", bg: "bg-emerald-500/10", icon: CheckCircle };
     
     const daysUntil = getDaysUntilDue(dueDate);
+    if (daysUntil === null) return { text: "No due date", color: "text-zinc-400", bg: "bg-zinc-500/10", icon: Calendar };
     if (daysUntil < 0) return { text: `${Math.abs(daysUntil)} days overdue`, color: "text-red-500", bg: "bg-red-500/10", icon: AlertTriangle };
     if (daysUntil === 0) return { text: "Due today", color: "text-yellow-500", bg: "bg-yellow-500/10", icon: Clock };
     if (daysUntil === 1) return { text: "Due tomorrow", color: "text-yellow-500", bg: "bg-yellow-500/10", icon: Clock };
@@ -323,29 +355,29 @@ export default function TaskDetail() {
       case 'high':
         return { 
           color: 'text-red-400', 
-          bg: 'bg-red-500/10 border-red-500/20', 
-          icon: '🔥',
+          bg: 'bg-red-500/10 border-red-500/20',
+          icon: <Flag className="w-4 h-4" />,
           gradient: 'from-red-500 to-pink-500'
         };
       case 'medium':
         return { 
           color: 'text-yellow-400', 
-          bg: 'bg-yellow-500/10 border-yellow-500/20', 
-          icon: '⚡',
+          bg: 'bg-yellow-500/10 border-yellow-500/20',
+          icon: <Flag className="w-4 h-4" />,
           gradient: 'from-yellow-500 to-orange-500'
         };
       case 'low':
         return { 
           color: 'text-emerald-400', 
-          bg: 'bg-emerald-500/10 border-emerald-500/20', 
-          icon: '🌱',
+          bg: 'bg-emerald-500/10 border-emerald-500/20',
+          icon: <Flag className="w-4 h-4" />,
           gradient: 'from-emerald-500 to-teal-500'
         };
       default:
         return { 
           color: 'text-zinc-400', 
-          bg: 'bg-zinc-500/10 border-zinc-500/20', 
-          icon: '📋',
+          bg: 'bg-zinc-500/10 border-zinc-500/20',
+          icon: <Flag className="w-4 h-4" />,
           gradient: 'from-zinc-500 to-slate-500'
         };
     }
@@ -427,7 +459,15 @@ export default function TaskDetail() {
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex-1">
                     <div className="flex items-center gap-4 mb-4">
-                      <span className="text-4xl">{task.statusEmoji}</span>
+                      {task.completed ? (
+                        <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                          <CheckCircle className="w-6 h-6 text-emerald-500" />
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                          <Clock className="w-6 h-6 text-blue-500" />
+                        </div>
+                      )}
                       <div>
                         <h2 className="text-2xl font-bold text-white leading-tight">{task.title}</h2>
                         <div className="flex items-center gap-2 mt-2">
@@ -444,16 +484,26 @@ export default function TaskDetail() {
                 
                 {/* Enhanced Status Pills */}
                 <div className="flex flex-wrap gap-3">
-                  <div className={`px-4 py-2 rounded-full text-sm font-medium border ${dueDateStatus.bg} ${dueDateStatus.color} border-current/20`}>
-                    {task.completed ? '✅ Completed' : '🔄 In Progress'}
+                  <div className={`px-4 py-2 rounded-full text-sm font-medium border ${dueDateStatus.bg} ${dueDateStatus.color} border-current/20 flex items-center gap-2`}>
+                    {task.completed ? (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        Completed
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="w-4 h-4" />
+                        In Progress
+                      </>
+                    )}
                   </div>
-                  <div className={`px-4 py-2 rounded-full text-sm font-medium border ${priorityConfig.bg} ${priorityConfig.color}`}>
-                    <span className="mr-2">{priorityConfig.icon}</span>
+                  <div className={`px-4 py-2 rounded-full text-sm font-medium border ${priorityConfig.bg} ${priorityConfig.color} flex items-center gap-2`}>
+                    {priorityConfig.icon}
                     {task.priority} Priority
                   </div>
                   {task.category && (
-                    <div className="px-4 py-2 rounded-full text-sm font-medium bg-zinc-700/30 text-zinc-300 border border-zinc-600/30">
-                      <Tag className="w-3 h-3 inline mr-2" />
+                    <div className="px-4 py-2 rounded-full text-sm font-medium bg-zinc-700/30 text-zinc-300 border border-zinc-600/30 flex items-center gap-2">
+                      <Tag className="w-4 h-4" />
                       {task.category}
                     </div>
                   )}
