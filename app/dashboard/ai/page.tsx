@@ -1186,6 +1186,21 @@ export default function AIPage() {
             return { ...msg, status: "delivered" };
           }
           if (index === prev.length - 1) { // Replace typing indicator
+            if (data.requiresClarification) {
+              return {
+                role: "assistant",
+                content: `# ❓ I Need More Information
+
+I'm not quite sure I understand. Could you please:
+
+- Provide more details about what you're trying to achieve
+- Be more specific about your request
+- Give me an example of what you're looking for
+
+This will help me give you a better response!`,
+                timestamp: new Date(),
+              };
+            }
             return {
               role: "assistant",
               content: data.message,
