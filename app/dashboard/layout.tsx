@@ -82,24 +82,24 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="flex h-screen bg-black">
+    <div className="flex h-screen overflow-hidden bg-black">
       {/* Sidebar with Mobile Toggle */}
-      <div className="relative z-40">
+      <div className="relative z-50">
         {/* Mobile Menu Button - Always Visible */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed bottom-[100px] right-4 p-2 bg-zinc-800 rounded-lg"
+          className="lg:hidden fixed top-4 left-4 p-2 bg-zinc-800 rounded-lg z-50"
         >
-          <Filter className="w-6 h-6 text-white" />
+          <Menu className="w-6 h-6 text-white" />
         </button>
 
         {/* Sidebar */}
         <aside
           className={`${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0 fixed h-full border-r border-zinc-800 p-4 bg-black transition-all duration-300 ease-in-out ${
-            isCollapsed ? "lg:w-20" : "w-64"
-          }`}
+          } lg:translate-x-0 fixed inset-y-0 left-0 h-full border-r border-zinc-800 p-4 bg-black transition-transform duration-300 ease-in-out ${
+            isCollapsed ? "lg:w-20" : "lg:w-64"
+          } w-64 z-50`}
         >
           {/* Back to Home Link */}
           <Link
@@ -300,19 +300,68 @@ export default function DashboardLayout({
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30"
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Main Content */}
-      <main className={`flex-1 overflow-y-auto w-full transition-all duration-300 ${
-        isCollapsed ? "lg:ml-20" : "lg:ml-64"
+      {/* Main Content Area */}
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
+        !isCollapsed ? "lg:ml-64" : "lg:ml-20"
       }`}>
-        <div className="p-4 sm:p-8">
-          <div className="max-w-7xl mx-auto">{children}</div>
-        </div>
-      </main>
+        {/* Header */}
+        <header className="sticky top-0 z-30 border-b border-zinc-800 bg-black/50 backdrop-blur-xl">
+          <div className="px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+            {/* Left side */}
+            <div className="flex items-center gap-4">
+              <div className="w-10 lg:hidden">
+                {/* Spacer for mobile menu button */}
+              </div>
+              <h1 className="text-lg font-semibold text-white capitalize">
+                {pathname === "/dashboard"
+                  ? "Dashboard"
+                  : pathname.split("/").pop()?.replace(/-/g, " ")}
+              </h1>
+            </div>
+
+            {/* Right side */}
+            <div className="flex items-center gap-2 sm:gap-4">
+              {/* Notifications */}
+              <button className="relative p-1.5 sm:p-2 text-zinc-400 hover:text-white transition-colors">
+                <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full"></span>
+              </button>
+
+              {/* Help */}
+              <button className="p-1.5 sm:p-2 text-zinc-400 hover:text-white transition-colors">
+                <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+
+              {/* User Menu */}
+              <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-zinc-800">
+                <div className="hidden sm:flex flex-col items-end">
+                  <p className="text-sm font-medium text-white">
+                    {userInfo?.name || "Loading..."}
+                  </p>
+                  <p className="text-xs text-zinc-400">
+                    {userInfo?.email || "Loading..."}
+                  </p>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  <span className="text-sm font-medium text-emerald-500">
+                    {userInfo?.name?.[0]?.toUpperCase() || "?"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
