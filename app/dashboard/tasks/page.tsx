@@ -15,6 +15,11 @@ import {
   AlertCircle,
   AlertTriangle,
   Circle,
+  Sparkles,
+  Edit3,
+  Copy,
+  Share2,
+  Archive,
 } from "lucide-react";
 import {
   Select,
@@ -397,15 +402,80 @@ export default function TasksPage() {
                 </Link>
                 
                 {openMenuId === task._id && (
-                  <div className="absolute right-4 top-12 w-48 bg-zinc-800 rounded-lg shadow-lg py-1 z-10">
-                    <button
-                      onClick={() => handleDeleteTask(task._id)}
-                      className="w-full px-4 py-2 text-left text-red-500 hover:bg-zinc-700 flex items-center"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete Task
-                    </button>
-                  </div>
+                  <>
+                    {/* Backdrop to close menu when clicking outside */}
+                    <div 
+                      className="fixed inset-0 z-10"
+                      onClick={() => setOpenMenuId(null)}
+                    />
+                    
+                    {/* Enhanced Menu */}
+                    <div className="absolute right-4 top-12 w-56 bg-zinc-800/95 backdrop-blur-sm border border-zinc-700/50 rounded-xl shadow-xl z-20">
+                      <div className="p-1.5">
+                        <Link 
+                          href={`/dashboard/tasks/${task._id}`}
+                          className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
+                        >
+                          <Sparkles className="w-4 h-4 text-emerald-500" />
+                          <span>AI Insights</span>
+                        </Link>
+
+                        <button 
+                          className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            // Add edit functionality
+                          }}
+                        >
+                          <Edit3 className="w-4 h-4" />
+                          <span>Edit Task</span>
+                        </button>
+
+                        <button 
+                          className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            // Add duplicate functionality
+                          }}
+                        >
+                          <Copy className="w-4 h-4" />
+                          <span>Duplicate</span>
+                        </button>
+
+                        <button 
+                          className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            // Add share functionality
+                          }}
+                        >
+                          <Share2 className="w-4 h-4" />
+                          <span>Share</span>
+                        </button>
+
+                        <button 
+                          className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            // Add archive functionality
+                          }}
+                        >
+                          <Archive className="w-4 h-4" />
+                          <span>Archive</span>
+                        </button>
+
+                        <div className="h-px bg-zinc-700/50 my-1" />
+
+                        <button
+                          onClick={() => handleDeleteTask(task._id)}
+                          className="flex items-center gap-2 w-full px-3 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors text-left group"
+                        >
+                          <Trash2 className="w-4 h-4 group-hover:animate-shake" />
+                          <span>Delete Task</span>
+                        </button>
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
             ))
