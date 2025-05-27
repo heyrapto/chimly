@@ -11,6 +11,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Trash2,
+  CheckCircle,
+  AlertCircle,
+  Circle,
 } from "lucide-react";
 import {
   Select,
@@ -247,6 +250,23 @@ export default function TasksPage() {
     return pageNumbers;
   };
 
+  // Add a helper function to get status icon
+  const getStatusIcon = (task: Task) => {
+    if (task.completed) {
+      return <CheckCircle className="w-5 h-5 text-emerald-500" />;
+    }
+    
+    // Check if task is overdue (you might want to adjust this logic based on your needs)
+    const dueDate = new Date(task.time);
+    const now = new Date();
+    if (dueDate < now) {
+      return <AlertCircle className="w-5 h-5 text-red-500" />;
+    }
+    
+    // Pending task
+    return <Circle className="w-5 h-5 text-yellow-500" />;
+  };
+
   return (
     <div className="p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
@@ -320,7 +340,7 @@ export default function TasksPage() {
                 <Link href={`/dashboard/tasks/${task._id}`} className="block">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <span className="text-xl">{task.statusEmoji}</span>
+                      {getStatusIcon(task)}
                       <div>
                         <h3 className="text-white font-medium">{task.activity}</h3>
                         <p className="text-sm text-zinc-400">

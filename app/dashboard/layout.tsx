@@ -16,6 +16,7 @@ import {
   Menu,
   ArrowLeft,
   Zap,
+  BadgeCheck,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -279,9 +280,12 @@ export default function DashboardLayout({
                 localStorage.removeItem("userId");
                 window.location.href = "/login";
               }}>
-                <p className="text-sm font-medium text-white truncate">
-                  {userInfo?.name || 'Loading...'}
-                </p>
+                <div className="flex items-center gap-1">
+                  <p className="text-sm font-medium text-white truncate">
+                    {userInfo?.name || 'Loading...'}
+                  </p>
+                  <BadgeCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                </div>
                 <p className="text-xs text-zinc-500 truncate">
                   {userInfo?.email || 'Loading...'}
                 </p>
