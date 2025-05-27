@@ -696,35 +696,35 @@ const AssistantMessage = ({ message, onRegenerate, onFeedback }: {
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.1 }}
-        className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20"
+        className="hidden sm:flex w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20"
       >
-        <Bot className="w-4 h-4 text-white" />
+        <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
       </motion.div>
       
       {/* Message Content */}
       <div className="flex-1 min-w-0">
-        <div className="bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 backdrop-blur-sm rounded-2xl rounded-tl-lg p-4 sm:p-5 shadow-xl border border-zinc-700/30">
-          <div className="space-y-2">
+        <div className="bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 backdrop-blur-sm rounded-2xl rounded-tl-lg p-3 sm:p-5 shadow-xl border border-zinc-700/30">
+          <div className="space-y-1.5 sm:space-y-2">
             {message.typing ? (
               <TypingIndicator />
             ) : (
-              <div className="prose prose-invert max-w-none break-words">
+              <div className="prose prose-invert max-w-none break-words text-[13px] sm:text-base leading-relaxed">
                 {formatMessageContent(message.content)}
               </div>
             )}
           </div>
           
           {!message.typing && (
-            <div className="flex items-center justify-between mt-4 pt-3 border-t border-zinc-700/30">
-              <span className="text-xs text-zinc-400">
+            <div className="flex items-center justify-between mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-zinc-700/30">
+              <span className="text-[10px] sm:text-xs text-zinc-400">
                 {message.timestamp.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
               </span>
               <div className="flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-emerald-400" />
-                <span className="text-xs text-emerald-400">AI</span>
+                <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-400" />
+                <span className="text-[10px] sm:text-xs text-emerald-400">AI</span>
               </div>
             </div>
           )}
@@ -799,13 +799,13 @@ const UserMessage = ({ message }: { message: Message }) => (
         <motion.div
           whileHover={{ scale: 1.01 }}
           transition={{ duration: 0.2 }}
-          className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl rounded-tr-lg p-4 sm:p-5 shadow-xl shadow-emerald-500/20 border border-emerald-400/20"
+          className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl rounded-tr-lg p-3 sm:p-5 shadow-xl shadow-emerald-500/20 border border-emerald-400/20"
         >
-          <p className="text-white leading-relaxed whitespace-pre-wrap break-words">
+          <p className="text-white leading-relaxed whitespace-pre-wrap break-words text-[13px] sm:text-base">
             {message.content}
           </p>
           
-          <div className="flex items-center gap-2 text-xs text-white/70 mt-2">
+          <div className="flex items-center gap-2 text-[10px] sm:text-xs text-white/70 mt-2">
             <span>
               {message.timestamp.toLocaleTimeString([], {
                 hour: "2-digit",
@@ -815,29 +815,25 @@ const UserMessage = ({ message }: { message: Message }) => (
             <span className="flex items-center gap-1">
               {message.status === "sending" && (
                 <>
-                  <Clock className="w-3 h-3" />
+                  <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span>Sending</span>
                 </>
               )}
               {message.status === "sent" && (
                 <>
-                  <Check className="w-3 h-3" />
+                  <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span>Sent</span>
                 </>
               )}
               {message.status === "delivered" && (
                 <>
-                  <CheckCheck className="w-3 h-3" />
+                  <CheckCheck className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span>Delivered</span>
                 </>
               )}
             </span>
           </div>
         </motion.div>
-        
-        <div className="opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 transition-opacity duration-200 mt-2 flex justify-end">
-          <CopyButton text={message.content} />
-        </div>
       </div>
       
       {/* Avatar */}
@@ -845,9 +841,9 @@ const UserMessage = ({ message }: { message: Message }) => (
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.1 }}
-        className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/20"
+        className="hidden sm:flex w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/20"
       >
-        <User className="w-4 h-4 text-white" />
+        <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
       </motion.div>
     </div>
   </motion.div>
@@ -1204,13 +1200,13 @@ export default function AIPage() {
     <div className="md:h-[calc(100vh-2rem)] h-screen flex flex-col bg-black overflow-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-b border-zinc-800 gap-4 sm:gap-2">
-        <div className="flex items-center gap-3">
+        <div className="md:flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
             <Bot className="w-5 h-5 text-emerald-500" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-white">Chimly</h1>
-            <p className="text-sm text-zinc-400">
+            <h1 className="md:text-xl font-semibold text-white text-md">Chimly</h1>
+            <p className="md:text-sm text-xs text-zinc-400">
               Chat with your AI powered task manager
             </p>
           </div>
