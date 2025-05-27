@@ -86,17 +86,17 @@ export default function DashboardPage() {
   return (
     <>
       {/* Header */}
-      <div className="flex sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+      {/* <div className="flex sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <h1 className="md:text-2xl text-xl font-bold text-white text-right">Dashboard</h1>
         <Link href="/dashboard/ai">
         <button className="w-full sm:w-auto md:px-4 px-2 md:py-2 py-1 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
           New Task
         </button>
         </Link>
-      </div>
+      </div> */}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 md:mt-0 mt-16">
         {/* Total Tasks Card */}
         <div className="p-4 sm:p-6 bg-zinc-900 border border-zinc-800 rounded-xl">
           <div className="flex items-center gap-4">

@@ -358,7 +358,7 @@ export default function DashboardLayout({
         !isCollapsed ? "lg:ml-64" : "lg:ml-20"
       }`}>
         {/* Header */}
-        <header className="sticky top-0 z-30 border-b border-zinc-800 bg-black/50 backdrop-blur-xl">
+        <header className="md:sticky fixed w-full top-0 z-30 border-b border-zinc-800 bg-black/50 backdrop-blur-xl">
           <div className="px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
             {/* Left side */}
             <div className="flex items-center gap-4">

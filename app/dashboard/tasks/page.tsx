@@ -304,9 +304,9 @@ export default function TasksPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen md:mt-0 mt-16">
       {/* Consistent Header */}
-      <header className="sticky top-0 z-30 w-full border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-xl">
+      {/* <header className="sticky top-0 z-30 w-full border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-xl">
         <div className="px-4 sm:px-6 lg:px-8 mx-auto">
           <div className="flex h-16 items-center justify-between">
             <div className="flex flex-1">
@@ -329,7 +329,7 @@ export default function TasksPage() {
             </div>
           </div>
         </div>
-      </header>
+      </header> */}
 
       {/* Main Content */}
       <main className="px-4 sm:px-6 lg:px-8 py-6">
