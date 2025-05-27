@@ -76,7 +76,7 @@ export default function LoginPage() {
             <Sparkles className="w-8 h-8 text-white" />
           </div> */}
           <h1 className="text-3xl font-bold text-white mb-2">Welcome back</h1>
-          <p className="text-slate-400">Sign in to your Chimly AI Agent</p>
+          <p className="text-slate-400">Sign in to your Chimly Account</p>
         </div>
 
         {/* Login Card */}
@@ -209,7 +209,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-xs text-slate-500">
-          <p>Powered by advanced AI technology</p>
+          <p>Powered by Chimly</p>
         </div>
       </div>
     </div>

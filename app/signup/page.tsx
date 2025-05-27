@@ -86,7 +86,7 @@ export default function SignUpPage() {
             <Sparkles className="w-8 h-8 text-white" />
           </div> */}
           <h1 className="text-3xl font-bold text-white mb-2">Join Chimly</h1>
-          <p className="text-slate-400">Create your AI agent account</p>
+          <p className="text-slate-400">Create your Chimly Account</p>
         </div>
 
         {/* Sign Up Card */}
@@ -286,7 +286,7 @@ export default function SignUpPage() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-xs text-slate-500">
-          <p>Join thousands of users leveraging AI agents</p>
+          <p>Join thousands of users leveraging Chimly</p>
         </div>
       </div>
     </div>

@@ -793,7 +793,7 @@ const UserMessage = ({ message }: { message: Message }) => (
     transition={{ duration: 0.3, ease: "easeOut" }}
     className="flex justify-end group"
   >
-    <div className="flex gap-2 sm:gap-3 w-full sm:w-auto sm:max-w-[85%]">
+    <div className="flex gap-2 sm:gap-3 w-fit sm:w-auto sm:max-w-[85%]">
       {/* Message Content */}
       <div className="flex-1 min-w-0">
         <motion.div

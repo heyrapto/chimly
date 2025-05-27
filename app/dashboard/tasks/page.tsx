@@ -304,246 +304,254 @@ export default function TasksPage() {
   };
 
   return (
-    <div className="p-4 sm:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Tasks</h1>
-            <p className="text-zinc-400 mt-1">
-              View and track your tasks ({totalFilteredTasks} {totalFilteredTasks === 1 ? 'task' : 'tasks'})
-            </p>
-          </div>
-          <Link
-            href="/dashboard/ai"
-            className="w-full sm:w-auto px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            New Task
-          </Link>
-        </div>
-
-        {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="flex-1 relative">
-            <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search tasks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-            />
-          </div>
-          <div className="flex gap-2">
-            <button className="px-4 py-2 bg-zinc-900 border border-zinc-800 text-white rounded-lg hover:bg-zinc-800 transition-colors flex items-center gap-2">
-              <Filter className="w-4 h-4" />
-              Filter
-            </button>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px] bg-zinc-900 border-zinc-800 text-white">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent className="bg-zinc-900 border-zinc-800">
-                <SelectItem value="all">All Tasks</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Tasks List */}
-        <div className="space-y-4">
-          {currentTasks.length === 0 ? (
-            <div className="text-center text-zinc-400 py-12">
-              <div className="mb-4">
-                <CheckSquare className="w-12 h-12 mx-auto text-zinc-700" />
+    <div className="min-h-screen">
+      {/* Consistent Header */}
+      <header className="sticky top-0 z-30 w-full border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-xl">
+        <div className="px-4 sm:px-6 lg:px-8 mx-auto">
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex flex-1">
+              <div className="flex-1">
+                <h1 className="text-xl font-semibold text-white">Tasks</h1>
+                <p className="text-sm text-zinc-400">
+                  View and track your tasks ({totalFilteredTasks} {totalFilteredTasks === 1 ? 'task' : 'tasks'})
+                </p>
               </div>
-              <h3 className="text-xl font-medium text-zinc-300 mb-2">No tasks found</h3>
-              <p className="text-zinc-500">
-                {filteredTasks.length === 0 
-                  ? "You don't have any tasks yet. Create your first task to get started."
-                  : "No tasks match your current filters."}
-              </p>
             </div>
-          ) : (
-            currentTasks.map((task) => (
-              <div
-                key={task._id}
-                className="group relative bg-zinc-900 rounded-lg p-4 hover:bg-zinc-800/50 transition-colors"
+            <div className="flex items-center gap-4">
+              <Link
+                href="/dashboard/ai"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
               >
-                <Link href={`/dashboard/tasks/${task._id}`} className="block">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      {getStatusIcon(task)}
-                      <div>
-                        <h3 className="text-white font-medium">{task.activity}</h3>
-                        <p className="text-sm text-zinc-400">
-                          {formatTimeAndDuration(task.time, task.duration)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <span className="text-sm text-zinc-400">
-                        {new Date(task.createdAt).toLocaleDateString()}
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault(); // Prevent navigation to detail page
-                          setOpenMenuId(openMenuId === task._id ? null : task._id);
-                        }}
-                        className="p-1 hover:bg-zinc-700 rounded-lg transition-colors"
-                      >
-                        <MoreVertical className="w-4 h-4 text-zinc-400" />
-                      </button>
-                    </div>
-                  </div>
-                </Link>
-                
-                {openMenuId === task._id && (
-                  <>
-                    {/* Backdrop to close menu when clicking outside */}
-                    <div 
-                      className="fixed inset-0 z-10"
-                      onClick={() => setOpenMenuId(null)}
-                    />
-                    
-                    {/* Enhanced Menu */}
-                    <div className="absolute right-4 top-12 w-56 bg-zinc-800/95 backdrop-blur-sm border border-zinc-700/50 rounded-xl shadow-xl z-20">
-                      <div className="p-1.5">
-                        <Link 
-                          href={`/dashboard/tasks/${task._id}`}
-                          className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
-                        >
-                          <Sparkles className="w-4 h-4 text-emerald-500" />
-                          <span>AI Insights</span>
-                        </Link>
+                <Plus className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">New Task</span>
+                <span className="sm:hidden">New</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
 
-                        <button 
-                          className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            // Add edit functionality
-                          }}
-                        >
-                          <Edit3 className="w-4 h-4" />
-                          <span>Edit Task</span>
-                        </button>
+      {/* Main Content */}
+      <main className="px-4 sm:px-6 lg:px-8 py-6">
+        <div className="mx-auto max-w-7xl">
+          {/* Search and Filter */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <div className="flex-1 relative">
+              <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search tasks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-zinc-800/50 border border-zinc-700/50 rounded-lg text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[140px] sm:w-[180px] bg-zinc-800/50 border-zinc-700/50 text-white">
+                  <SelectValue placeholder="Filter status" />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-800 border-zinc-700">
+                  <SelectItem value="all">All Tasks</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-                        <button 
-                          className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            // Add duplicate functionality
-                          }}
-                        >
-                          <Copy className="w-4 h-4" />
-                          <span>Duplicate</span>
-                        </button>
-
-                        <button 
-                          className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            // Add share functionality
-                          }}
-                        >
-                          <Share2 className="w-4 h-4" />
-                          <span>Share</span>
-                        </button>
-
-                        <button 
-                          className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            // Add archive functionality
-                          }}
-                        >
-                          <Archive className="w-4 h-4" />
-                          <span>Archive</span>
-                        </button>
-
-                        <div className="h-px bg-zinc-700/50 my-1" />
-
-                        <button
-                          onClick={() => handleDeleteTask(task._id)}
-                          className="flex items-center gap-2 w-full px-3 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors text-left group"
-                        >
-                          <Trash2 className="w-4 h-4 group-hover:animate-shake" />
-                          <span>Delete Task</span>
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
+          {/* Tasks List */}
+          <div className="space-y-3">
+            {currentTasks.length === 0 ? (
+              <div className="text-center text-zinc-400 py-12">
+                <div className="mb-4">
+                  <CheckSquare className="w-12 h-12 mx-auto text-zinc-700" />
+                </div>
+                <h3 className="text-xl font-medium text-zinc-300 mb-2">No tasks found</h3>
+                <p className="text-zinc-500">
+                  {filteredTasks.length === 0 
+                    ? "You don't have any tasks yet. Create your first task to get started."
+                    : "No tasks match your current filters."}
+                </p>
               </div>
-            ))
+            ) : (
+              currentTasks.map((task) => (
+                <div
+                  key={task._id}
+                  className="group relative bg-zinc-900 rounded-lg p-4 hover:bg-zinc-800/50 transition-colors"
+                >
+                  <Link href={`/dashboard/tasks/${task._id}`} className="block">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        {getStatusIcon(task)}
+                        <div>
+                          <h3 className="text-white font-medium">{task.activity}</h3>
+                          <p className="text-sm text-zinc-400">
+                            {formatTimeAndDuration(task.time, task.duration)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-4">
+                        <span className="text-sm text-zinc-400">
+                          {new Date(task.createdAt).toLocaleDateString()}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault(); // Prevent navigation to detail page
+                            setOpenMenuId(openMenuId === task._id ? null : task._id);
+                          }}
+                          className="p-1 hover:bg-zinc-700 rounded-lg transition-colors"
+                        >
+                          <MoreVertical className="w-4 h-4 text-zinc-400" />
+                        </button>
+                      </div>
+                    </div>
+                  </Link>
+                  
+                  {openMenuId === task._id && (
+                    <>
+                      {/* Backdrop to close menu when clicking outside */}
+                      <div 
+                        className="fixed inset-0 z-10"
+                        onClick={() => setOpenMenuId(null)}
+                      />
+                      
+                      {/* Enhanced Menu */}
+                      <div className="absolute right-4 top-12 w-56 bg-zinc-800/95 backdrop-blur-sm border border-zinc-700/50 rounded-xl shadow-xl z-20">
+                        <div className="p-1.5">
+                          <Link 
+                            href={`/dashboard/tasks/${task._id}`}
+                            className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
+                          >
+                            <Sparkles className="w-4 h-4 text-emerald-500" />
+                            <span>AI Insights</span>
+                          </Link>
+
+                          <button 
+                            className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              // Add edit functionality
+                            }}
+                          >
+                            <Edit3 className="w-4 h-4" />
+                            <span>Edit Task</span>
+                          </button>
+
+                          <button 
+                            className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              // Add duplicate functionality
+                            }}
+                          >
+                            <Copy className="w-4 h-4" />
+                            <span>Duplicate</span>
+                          </button>
+
+                          <button 
+                            className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              // Add share functionality
+                            }}
+                          >
+                            <Share2 className="w-4 h-4" />
+                            <span>Share</span>
+                          </button>
+
+                          <button 
+                            className="flex items-center gap-2 w-full px-3 py-2 text-zinc-300 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors text-left"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              // Add archive functionality
+                            }}
+                          >
+                            <Archive className="w-4 h-4" />
+                            <span>Archive</span>
+                          </button>
+
+                          <div className="h-px bg-zinc-700/50 my-1" />
+
+                          <button
+                            onClick={() => handleDeleteTask(task._id)}
+                            className="flex items-center gap-2 w-full px-3 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors text-left group"
+                          >
+                            <Trash2 className="w-4 h-4 group-hover:animate-shake" />
+                            <span>Delete Task</span>
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Pagination - only show if we have tasks */}
+          {filteredTasks.length > 0 && (
+            <div className="mt-8 flex justify-center">
+              <nav className="flex items-center gap-2">
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={safeCurrentPage === 1}
+                  className={`p-2 rounded-lg transition-colors flex items-center ${
+                    safeCurrentPage === 1 
+                      ? 'text-zinc-600 cursor-not-allowed' 
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                  }`}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="sr-only md:not-sr-only md:ml-2">Previous</span>
+                </button>
+                
+                <div className="flex items-center gap-1">
+                  {getPageNumbers().map((page, index) => (
+                    typeof page === 'number' ? (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-1 rounded-lg transition-colors ${
+                          page === safeCurrentPage
+                            ? "bg-emerald-600 text-white"
+                            : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ) : (
+                      <span key={index} className="px-1 text-zinc-600">
+                        {page}
+                      </span>
+                    )
+                  ))}
+                </div>
+                
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={safeCurrentPage === totalPages}
+                  className={`p-2 rounded-lg transition-colors flex items-center ${
+                    safeCurrentPage === totalPages 
+                      ? 'text-zinc-600 cursor-not-allowed' 
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                  }`}
+                >
+                  <span className="sr-only md:not-sr-only md:mr-2">Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </nav>
+            </div>
+          )}
+
+          {/* Showing results summary */}
+          {filteredTasks.length > 0 && (
+            <div className="mt-4 text-center text-xs text-zinc-500">
+              Showing {startIndex + 1}-{endIndex} of {totalFilteredTasks} tasks
+            </div>
           )}
         </div>
-
-        {/* Pagination - only show if we have tasks */}
-        {filteredTasks.length > 0 && (
-          <div className="mt-8 flex justify-center">
-            <nav className="flex items-center gap-2">
-              <button 
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={safeCurrentPage === 1}
-                className={`p-2 rounded-lg transition-colors flex items-center ${
-                  safeCurrentPage === 1 
-                    ? 'text-zinc-600 cursor-not-allowed' 
-                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
-                }`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span className="sr-only md:not-sr-only md:ml-2">Previous</span>
-              </button>
-              
-              <div className="flex items-center gap-1">
-                {getPageNumbers().map((page, index) => (
-                  typeof page === 'number' ? (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentPage(page)}
-                      className={`px-3 py-1 rounded-lg transition-colors ${
-                        page === safeCurrentPage
-                          ? "bg-emerald-600 text-white"
-                          : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ) : (
-                    <span key={index} className="px-1 text-zinc-600">
-                      {page}
-                    </span>
-                  )
-                ))}
-              </div>
-              
-              <button 
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={safeCurrentPage === totalPages}
-                className={`p-2 rounded-lg transition-colors flex items-center ${
-                  safeCurrentPage === totalPages 
-                    ? 'text-zinc-600 cursor-not-allowed' 
-                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
-                }`}
-              >
-                <span className="sr-only md:not-sr-only md:mr-2">Next</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </nav>
-          </div>
-        )}
-
-        {/* Showing results summary */}
-        {filteredTasks.length > 0 && (
-          <div className="mt-4 text-center text-xs text-zinc-500">
-            Showing {startIndex + 1}-{endIndex} of {totalFilteredTasks} tasks
-          </div>
-        )}
-      </div>
+      </main>
     </div>
   );
 }

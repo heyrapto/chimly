@@ -388,7 +388,7 @@ export default function TaskDetail() {
   const StatusIcon = dueDateStatus.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800">
+    <div className="min-h-screen">
       <div className="p-4 sm:p-8">
         <div className="max-w-6xl mx-auto">
           {/* Enhanced Header */}

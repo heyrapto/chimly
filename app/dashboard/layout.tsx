@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   Zap,
   BadgeCheck,
+  Filter,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -87,9 +88,9 @@ export default function DashboardLayout({
         {/* Mobile Menu Button - Always Visible */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed top-4 left-4 p-2 bg-zinc-800 rounded-lg"
+          className="lg:hidden fixed bottom-[100px] right-4 p-2 bg-zinc-800 rounded-lg"
         >
-          <Menu className="w-6 h-6 text-white" />
+          <Filter className="w-6 h-6 text-white" />
         </button>
 
         {/* Sidebar */}
@@ -305,7 +306,7 @@ export default function DashboardLayout({
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 overflow-y-auto w-full transition-all duration-300 mt-12 md:mt-0 ${
+      <main className={`flex-1 overflow-y-auto w-full transition-all duration-300 ${
         isCollapsed ? "lg:ml-20" : "lg:ml-64"
       }`}>
         <div className="p-4 sm:p-8">

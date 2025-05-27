@@ -10,6 +10,10 @@ import {
   Sparkles,
   User2,
   MessageSquare,
+  Check,
+  Zap,
+  Users,
+  X,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -920,197 +924,208 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight text-white mb-4">
-              Chimly AI Features
+              Simple, Transparent Pricing
             </h2>
             <p className="text-zinc-400 text-lg">
-              Choose the perfect plan for your needs
+              Start for free, upgrade when you need more
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Free Plan */}
             <div className="relative group">
-              <div className="absolute inset-0.5 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-300" />
+              <div className="absolute inset-0.5 bg-gradient-to-t from-zinc-500 to-zinc-400 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-300" />
               <div className="relative bg-zinc-900 border border-zinc-800 rounded-2xl p-8 h-full">
                 <div className="flex flex-col h-full">
                   <div className="mb-8">
-                    <h3 className="text-xl font-semibold text-white mb-2">
-                      Free Plan
-                    </h3>
-                    <div className="flex items-baseline gap-2 mb-4">
-                      <span className="text-4xl font-bold text-white">$0</span>
-                      <span className="text-zinc-400">/forever</span>
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-semibold text-white">Free</h3>
+                        <p className="text-sm text-zinc-400">Starter</p>
+                      </div>
+                      <Sparkles className="w-8 h-8 text-zinc-500" />
                     </div>
-                    <p className="text-zinc-400">
-                      Perfect for getting started with AI-powered task management.
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-bold text-white">$0</span>
+                      <span className="text-zinc-400">/month</span>
+                    </div>
+                    <p className="mt-4 text-sm text-zinc-400">
+                      Ideal for testing and onboarding users.
                     </p>
                   </div>
 
-                  <div className="space-y-6 mb-8 flex-grow">
-                    <div>
-                      <h4 className="text-white font-medium mb-3">Current Features:</h4>
-                      <ul className="space-y-3">
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Schedule 1 task at a time
-                        </li>
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Push notification 15 minutes before task
-                        </li>
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Unlimited AI conversations
-                        </li>
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Limited chats
-                        </li>
-                      </ul>
-                    </div>
+                  <ul className="space-y-4 mb-8 flex-grow">
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Limited chats (15-30 per month)</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Basic AI responses</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Email notifications only</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Basic Analytics (limited to past 7 days)</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-500">
+                      <X className="w-5 h-5 mt-0.5" />
+                      <span>No image or voice understanding</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-500">
+                      <X className="w-5 h-5 mt-0.5" />
+                      <span>No green tick (unverified badge)</span>
+                    </li>
+                  </ul>
 
-                    <div>
-                      <h4 className="text-white font-medium mb-3">New Features:</h4>
-                      <ul className="space-y-3">
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Task Templates (3 templates)
-                        </li>
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Basic Analytics Dashboard
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <button className="w-full bg-white/10 text-white py-2 rounded-lg hover:bg-white/20 transition-colors">
-                    Get Started
-                  </button>
+                  <Link
+                    href="/signup"
+                    className="block w-full px-6 py-3 text-center text-sm font-medium text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors"
+                  >
+                    Get Started Free
+                  </Link>
                 </div>
               </div>
             </div>
 
-            {/* Paid Plan */}
+            {/* Pro Plan */}
             <div className="relative group">
-              <div className="absolute inset-0.5 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-2xl blur opacity-30 group-hover:opacity-40 transition duration-300" />
-              <div className="relative bg-zinc-900 border border-emerald-500/20 rounded-2xl p-8 h-full">
-                <div className="absolute top-0 right-6 -translate-y-1/2">
-                  <span className="bg-emerald-500 text-black text-sm font-medium px-3 py-1 rounded-full">
-                    Popular
-                  </span>
+              <div className="absolute inset-0.5 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-300" />
+              <div className="relative bg-zinc-900 border-2 border-emerald-500 rounded-2xl p-8 h-full">
+                <div className="absolute -top-5 left-0 right-0 mx-auto w-fit px-4 py-1 rounded-full bg-emerald-500 text-white text-sm font-medium">
+                  Most Popular
                 </div>
                 <div className="flex flex-col h-full">
                   <div className="mb-8">
-                    <h3 className="text-xl font-semibold text-white mb-2">
-                      Paid Plan
-                    </h3>
-                    <div className="flex items-baseline gap-2 mb-4">
-                      <span className="text-4xl font-bold text-white">$0.005</span>
-                      <span className="text-zinc-400">/credit</span>
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-semibold text-white">Pro</h3>
+                        <p className="text-sm text-zinc-400">Verified</p>
+                      </div>
+                      <Zap className="w-8 h-8 text-emerald-500" />
                     </div>
-                    <p className="text-zinc-400">
-                      Advanced features for power users and teams.
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-bold text-white">$9</span>
+                      <span className="text-zinc-400">/month</span>
+                    </div>
+                    <p className="mt-4 text-sm text-zinc-400">
+                      For users who want smarter help and more control.
                     </p>
                   </div>
 
-                  <div className="space-y-6 mb-8 flex-grow">
-                    <div>
-                      <h4 className="text-white font-medium mb-3">Current Features:</h4>
-                      <ul className="space-y-3">
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Everything in Free
-                        </li>
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Credit-based system (0.5 cents per 10 credits)
-                        </li>
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Task adaptation and user behavior learning
-                        </li>
-                      </ul>
-                    </div>
+                  <ul className="space-y-4 mb-8 flex-grow">
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Unlimited chats</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Smarter AI responses (context-aware, habit learning)</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Email & voice call reminders</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Basic Analytics Dashboard (with streaks & weekly reports)</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Image & voice understanding</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Green tick (verified status)</span>
+                    </li>
+                  </ul>
 
-                    <div>
-                      <h4 className="text-white font-medium mb-3">New Features:</h4>
-                      <ul className="space-y-3">
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Priority Task Boost (8 credits)
-                        </li>
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Cross-Platform Sync
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div>
-                      <h4 className="text-white font-medium mb-3">Hyped Features:</h4>
-                      <ul className="space-y-3">
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Real-time Collab
-                        </li>
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          AI Calls
-                        </li>
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Import your personal AI model
-                        </li>
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Personal LLM for task handling
-                        </li>
-                        <li className="flex items-center gap-3 text-zinc-300">
-                          <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          AI that constantly reminds team until tasks are completed
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <button className="w-full bg-emerald-500 text-black py-2 rounded-lg hover:bg-emerald-400 transition-colors font-medium">
-                    Get Started
-                  </button>
+                  <Link
+                    href="/signup?plan=pro"
+                    className="block w-full px-6 py-3 text-center text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors"
+                  >
+                    Upgrade to Pro
+                  </Link>
                 </div>
               </div>
+            </div>
+
+            {/* Premium Plan */}
+            <div className="relative group">
+              <div className="absolute inset-0.5 bg-gradient-to-t from-purple-500 to-purple-400 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-300" />
+              <div className="relative bg-zinc-900 border border-zinc-800 rounded-2xl p-8 h-full">
+                <div className="flex flex-col h-full">
+                  <div className="mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-semibold text-white">Premium</h3>
+                        <p className="text-sm text-zinc-400">Team/Power User</p>
+                      </div>
+                      <Users className="w-8 h-8 text-purple-500" />
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-bold text-white">$19</span>
+                      <span className="text-zinc-400">/month</span>
+                    </div>
+                    <p className="mt-4 text-sm text-zinc-400">
+                      For professionals or teams needing deeper insights and more automation.
+                    </p>
+                  </div>
+
+                  <ul className="space-y-4 mb-8 flex-grow">
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Everything in Pro</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Team collaboration (assign/shared tasks)</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Advanced Analytics (monthly reports, habit loops)</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Multiple integrations (Google Calendar, Slack, etc.)</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Custom reminders (e.g., "Remind me after I get home")</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-zinc-300">
+                      <Check className="w-5 h-5 text-emerald-500 mt-0.5" />
+                      <span>Early access to new features</span>
+                    </li>
+                  </ul>
+
+                  <Link
+                    href="/signup?plan=premium"
+                    className="block w-full px-6 py-3 text-center text-sm font-medium text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors"
+                  >
+                    Get Premium
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Benefits */}
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-white mb-2">Yearly Discount</h3>
+              <p className="text-zinc-400 text-sm">Get 2 months free when you pay annually</p>
+            </div>
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-white mb-2">Free Trial</h3>
+              <p className="text-zinc-400 text-sm">7-day free trial of Pro when you sign up</p>
+            </div>
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-white mb-2">Referral Bonus</h3>
+              <p className="text-zinc-400 text-sm">Earn 1 month of Pro for each friend who upgrades</p>
             </div>
           </div>
         </div>
@@ -1283,71 +1298,124 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="pt-16 pb-8 px-4 border-t border-zinc-800/50 bg-black/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-16">
+      <footer className="pt-24 pb-12 px-4 border-t border-zinc-800/50 bg-gradient-to-b from-black to-zinc-900/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             {/* Company Info */}
             <div className="col-span-1">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="relative overflow-hidden ">
-                  <Image
-                    src="/assets/logo.png"
-                    alt="Chimly"
-                    width={80}
-                    height={80}
-                    priority
-                  />
+              <Link href="/" className="relative group flex items-center mb-6">
+                <div className="absolute -inset-2 bg-gradient-to-r from-zinc-100/5 via-zinc-500/10 to-zinc-100/5 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                <div className="relative flex items-center">
+                  <div className="relative overflow-hidden">
+                    <Image
+                      src="/assets/logo.png"
+                      alt="Chimly"
+                      width={80}
+                      height={80}
+                      priority
+                    />
+                  </div>
                 </div>
-              </div>
-              <p className="text-zinc-400 text-sm mb-6">
-                Simplify your workflow with AI-powered productivity tools designed for modern teams.
+              </Link>
+              <p className="text-zinc-400 text-sm leading-relaxed mb-6">
+                Revolutionize your workflow with AI-powered productivity tools. Built for modern teams who value efficiency and intelligent automation.
               </p>
+              <div className="flex items-center gap-4">
+                <a 
+                  href="https://twitter.com/chimlyai" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                  </svg>
+                </a>
+                <a 
+                  href="https://github.com/chimlyai" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                  </svg>
+                </a>
+                <a 
+                  href="https://linkedin.com/company/chimlyai" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                  </svg>
+                </a>
+              </div>
             </div>
             
-            {/* Quick Links */}
+            {/* Product */}
             <div>
-              <h3 className="text-white font-medium mb-4">Product</h3>
+              <h3 className="text-white font-semibold mb-4">Product</h3>
               <ul className="space-y-3">
                 <li>
-                  <a href="#features" className="text-zinc-400 text-sm hover:text-white transition-colors">Features</a>
+                  <a href="#features" className="text-zinc-400 hover:text-white transition-colors text-sm">Features</a>
                 </li>
                 <li>
-                  <a href="#pricing" className="text-zinc-400 text-sm hover:text-white transition-colors">Pricing</a>
+                  <a href="#pricing" className="text-zinc-400 hover:text-white transition-colors text-sm">Pricing</a>
                 </li>
                 <li>
-                  <a href="#faq" className="text-zinc-400 text-sm hover:text-white transition-colors">FAQ</a>
+                  <a href="#how-it-works" className="text-zinc-400 hover:text-white transition-colors text-sm">How It Works</a>
+                </li>
+                <li>
+                  <a href="#faq" className="text-zinc-400 hover:text-white transition-colors text-sm">FAQ</a>
+                </li>
+                <li>
+                  <Link href="/roadmap" className="text-zinc-400 hover:text-white transition-colors text-sm">Roadmap</Link>
                 </li>
               </ul>
             </div>
             
-            {/* Resources */}
+            {/* Company */}
             <div>
-              <h3 className="text-white font-medium mb-4">Resources</h3>
+              <h3 className="text-white font-semibold mb-4">Company</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link href="/help" className="text-zinc-400 text-sm hover:text-white transition-colors">Help Center</Link>
+                  <Link href="/about" className="text-zinc-400 hover:text-white transition-colors text-sm">About</Link>
                 </li>
                 <li>
-                  <Link href="/community" className="text-zinc-400 text-sm hover:text-white transition-colors">Community</Link>
+                  <Link href="/blog" className="text-zinc-400 hover:text-white transition-colors text-sm">Blog</Link>
                 </li>
                 <li>
-                  <Link href="/blog" className="text-zinc-400 text-sm hover:text-white transition-colors">Blog</Link>
+                  <Link href="/careers" className="text-zinc-400 hover:text-white transition-colors text-sm">Careers</Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="text-zinc-400 hover:text-white transition-colors text-sm">Contact</Link>
+                </li>
+                <li>
+                  <Link href="/press" className="text-zinc-400 hover:text-white transition-colors text-sm">Press Kit</Link>
                 </li>
               </ul>
             </div>
             
             {/* Legal */}
             <div>
-              <h3 className="text-white font-medium mb-4">Legal</h3>
+              <h3 className="text-white font-semibold mb-4">Legal</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link href="/privacy" className="text-zinc-400 text-sm hover:text-white transition-colors">Privacy Policy</Link>
+                  <Link href="/privacy" className="text-zinc-400 hover:text-white transition-colors text-sm">Privacy Policy</Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="text-zinc-400 text-sm hover:text-white transition-colors">Terms of Service</Link>
+                  <Link href="/terms" className="text-zinc-400 hover:text-white transition-colors text-sm">Terms of Service</Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="text-zinc-400 text-sm hover:text-white transition-colors">Contact Us</Link>
+                  <Link href="/security" className="text-zinc-400 hover:text-white transition-colors text-sm">Security</Link>
+                </li>
+                <li>
+                  <Link href="/cookies" className="text-zinc-400 hover:text-white transition-colors text-sm">Cookie Policy</Link>
+                </li>
+                <li>
+                  <Link href="/gdpr" className="text-zinc-400 hover:text-white transition-colors text-sm">GDPR Compliance</Link>
                 </li>
               </ul>
             </div>
@@ -1356,20 +1424,23 @@ export default function Home() {
           {/* Bottom Bar */}
           <div className="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-zinc-500 text-sm">
-              © {new Date().getFullYear()} Chimly. All rights reserved.
+              © {new Date().getFullYear()} Chimly AI. All rights reserved.
             </div>
             
             <div className="flex items-center gap-6">
-              <a href="#" className="text-zinc-400 hover:text-white transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
-                </svg>
-              </a>
-              <a href="#" className="text-zinc-400 hover:text-white transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                </svg>
-              </a>
+              <Link href="/status" className="text-zinc-400 hover:text-white transition-colors text-sm">
+                System Status
+              </Link>
+              <Link href="/sitemap" className="text-zinc-400 hover:text-white transition-colors text-sm">
+                Sitemap
+              </Link>
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="text-emerald-400 text-sm">All systems operational</span>
+              </div>
             </div>
           </div>
         </div>
