@@ -18,9 +18,54 @@ import {
   Zap,
   BadgeCheck,
   Filter,
+  ChevronUp,
+  ChevronDown,
+  Sparkles,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+
+// Quick reply suggestions based on context
+const quickReplies = {
+  general: [
+    "What's my next task?",
+    "Show me my schedule",
+    "Help me prioritize",
+    "What's my progress?",
+  ],
+  task: [
+    "Break this down into steps",
+    "Set a deadline for this",
+    "Add this to my schedule",
+    "Mark this as complete",
+  ],
+  schedule: [
+    "Show my calendar",
+    "What's due today?",
+    "Reschedule this task",
+    "Add a reminder",
+  ],
+};
+
+// Message templates by category
+const messageTemplates = {
+  task: [
+    "I need help with this task",
+    "Can you break this down for me?",
+    "What's the best way to approach this?",
+  ],
+  schedule: [
+    "Show me my upcoming tasks",
+    "What's my schedule for today?",
+    "Help me plan my week",
+  ],
+  productivity: [
+    "How can I be more productive?",
+    "What's my current focus?",
+    "Help me stay on track",
+  ],
+};
 
 export default function DashboardLayout({
   children,
@@ -30,6 +75,9 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userInfo, setUserInfo] = useState<{ name: string; email: string } | null>(null);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showQuickReplies, setShowQuickReplies] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<keyof typeof quickReplies>("general");
   const router = useRouter();
   const pathname = usePathname();
 
@@ -88,9 +136,9 @@ export default function DashboardLayout({
         {/* Mobile Menu Button - Always Visible */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed top-4 left-4 p-2 bg-zinc-800 rounded-lg z-50"
+          className="lg:hidden fixed top-3 left-4 p-2 bg-zinc-800 rounded-lg z-50"
         >
-          <Menu className="w-6 h-6 text-white" />
+          <Menu className="w-5 h-5 text-white" />
         </button>
 
         {/* Sidebar */}
@@ -326,6 +374,38 @@ export default function DashboardLayout({
 
             {/* Right side */}
             <div className="flex items-center gap-2 sm:gap-4">
+              {/* Show quick suggestions and templates buttons only on AI page */}
+              {pathname === "/dashboard/ai" && (
+                <>
+                  <button
+                    onClick={() => {
+                      setShowQuickReplies(!showQuickReplies);
+                      window.dispatchEvent(new CustomEvent('quickRepliesToggled', { detail: !showQuickReplies }));
+                    }}
+                    className="hidden sm:flex px-4 py-2 text-sm text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors items-center justify-center gap-2"
+                  >
+                    {showQuickReplies ? (
+                      <>
+                        <ChevronDown className="w-4 h-4" />
+                        <span className="text-xs">Hide Suggestions</span>
+                      </>
+                    ) : (
+                      <>
+                        <ChevronUp className="w-4 h-4" />
+                        <span className="text-xs">Show Suggestions</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setShowTemplates(!showTemplates)}
+                    className="hidden sm:flex px-4 py-2 text-sm text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span className="text-xs">Templates</span>
+                  </button>
+                </>
+              )}
+
               {/* Notifications */}
               <button className="relative p-1.5 sm:p-2 text-zinc-400 hover:text-white transition-colors">
                 <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -356,6 +436,44 @@ export default function DashboardLayout({
             </div>
           </div>
         </header>
+
+        {/* Message Templates */}
+        <AnimatePresence>
+          {showTemplates && pathname === "/dashboard/ai" && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="border-b border-zinc-800 overflow-hidden bg-black/50 backdrop-blur-xl"
+            >
+              <div className="p-4 space-y-6">
+                {Object.entries(messageTemplates).map(([category, templates]) => (
+                  <div key={category}>
+                    <h3 className="text-sm font-medium text-zinc-400 mb-3 capitalize flex items-center gap-2">
+                      <div className="w-1 h-4 bg-emerald-500 rounded-full"></div>
+                      {category}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                      {templates.map((template, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            // Template selection will be handled by the AI page component
+                            window.dispatchEvent(new CustomEvent('templateSelected', { detail: template }));
+                            setShowTemplates(false);
+                          }}
+                          className="w-full px-4 py-3 text-sm text-left text-white bg-zinc-800/80 hover:bg-zinc-700/80 transition-colors rounded-xl border border-zinc-700/50 hover:border-emerald-500/50"
+                        >
+                          {template}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6">

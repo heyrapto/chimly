@@ -957,6 +957,26 @@ export default function AIPage() {
     }
   }, [messages, isLoading]);
 
+  // Listen for template selection events from the layout
+  useEffect(() => {
+    const handleTemplateSelected = (event: CustomEvent<string>) => {
+      setMessage(event.detail);
+      inputRef.current?.focus();
+    };
+
+    const handleQuickRepliesToggled = (event: CustomEvent<boolean>) => {
+      setShowQuickReplies(event.detail);
+    };
+
+    window.addEventListener('templateSelected', handleTemplateSelected as EventListener);
+    window.addEventListener('quickRepliesToggled', handleQuickRepliesToggled as EventListener);
+
+    return () => {
+      window.removeEventListener('templateSelected', handleTemplateSelected as EventListener);
+      window.removeEventListener('quickRepliesToggled', handleQuickRepliesToggled as EventListener);
+    };
+  }, []);
+
   const handleQuickReply = (reply: string) => {
     setMessage(reply);
     inputRef.current?.focus();
@@ -1198,83 +1218,6 @@ export default function AIPage() {
 
   return (
     <div className="md:h-[calc(100vh-2rem)] h-screen flex flex-col bg-black overflow-hidden">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-b border-zinc-800 gap-4 sm:gap-2">
-        <div className="md:flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-            <Bot className="w-5 h-5 text-emerald-500" />
-          </div>
-          <div>
-            <h1 className="md:text-xl font-semibold text-white text-md">Chimly</h1>
-            <p className="md:text-sm text-xs text-zinc-400">
-              Chat with your AI powered task manager
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <button
-            onClick={() => setShowQuickReplies(!showQuickReplies)}
-            className="flex-1 sm:flex-none px-4 py-2 text-sm text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
-          >
-            {showQuickReplies ? (
-              <>
-                <ChevronDown className="w-4 h-4" />
-                <span className="hidden sm:inline text-xs">Hide Suggestions</span>
-                <span className="sm:hidden text-xs">Suggestions</span>
-              </>
-            ) : (
-              <>
-                <ChevronUp className="w-4 h-4" />
-                <span className="hidden sm:inline text-xs">Show Suggestions</span>
-                <span className="sm:hidden text-xs">Suggestions</span>
-              </>
-            )}
-          </button>
-          <button
-            onClick={() => setShowTemplates(!showTemplates)}
-            className="flex-1 sm:flex-none px-4 py-2 text-sm text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span className="hidden sm:inline text-xs">Templates</span>
-            <span className="sm:hidden text-xs">Quick Use</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Message Templates */}
-      <AnimatePresence>
-        {showTemplates && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="border-b border-zinc-800 overflow-hidden"
-          >
-            <div className="p-4 space-y-6">
-              {Object.entries(messageTemplates).map(([category, templates]) => (
-                <div key={category}>
-                  <h3 className="text-sm font-medium text-zinc-400 mb-3 capitalize flex items-center gap-2">
-                    <div className="w-1 h-4 bg-emerald-500 rounded-full"></div>
-                    {category}
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                    {templates.map((template, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleTemplateSelect(template)}
-                        className="w-full px-4 py-3 text-sm text-left text-white bg-zinc-800/80 hover:bg-zinc-700/80 transition-colors rounded-xl border border-zinc-700/50 hover:border-emerald-500/50"
-                      >
-                        {template}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Chat Container */}
       <div className={`flex-1 overflow-y-auto px-4 pb-[180px] sm:pb-[140px] scrollbar-hide`}>
         <div className="w-full mx-auto flex flex-col min-h-full">
