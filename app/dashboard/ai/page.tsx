@@ -22,7 +22,8 @@ import {
   ImageIcon,
   Mic,
   X,
-  Loader2
+  Loader2,
+  Plus
 } from "lucide-react";
 import { useState, useEffect, useRef, ReactElement } from "react";
 import { cn } from "@/lib/utils";
@@ -689,7 +690,7 @@ const AssistantMessage = ({ message, onRegenerate, onFeedback }: {
     transition={{ duration: 0.3, ease: "easeOut" }}
     className="flex justify-start group"
   >
-    <div className="flex gap-3 max-w-[85%]">
+    <div className="flex gap-2 sm:gap-3 w-full sm:w-auto sm:max-w-[85%]">
       {/* Avatar */}
       <motion.div
         initial={{ scale: 0 }}
@@ -701,13 +702,13 @@ const AssistantMessage = ({ message, onRegenerate, onFeedback }: {
       </motion.div>
       
       {/* Message Content */}
-      <div className="flex-1">
-        <div className="bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 backdrop-blur-sm rounded-2xl rounded-tl-lg p-5 shadow-xl border border-zinc-700/30">
+      <div className="flex-1 min-w-0">
+        <div className="bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 backdrop-blur-sm rounded-2xl rounded-tl-lg p-4 sm:p-5 shadow-xl border border-zinc-700/30">
           <div className="space-y-2">
             {message.typing ? (
               <TypingIndicator />
             ) : (
-              <div className="prose prose-invert max-w-none">
+              <div className="prose prose-invert max-w-none break-words">
                 {formatMessageContent(message.content)}
               </div>
             )}
@@ -730,11 +731,55 @@ const AssistantMessage = ({ message, onRegenerate, onFeedback }: {
         </div>
         
         {!message.typing && (
-          <MessageActions 
-            message={message} 
-            onRegenerate={onRegenerate}
-            onFeedback={onFeedback}
-          />
+          <div 
+            className="opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 transition-opacity duration-200 mt-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-1 justify-end">
+              <CopyButton text={message.content} />
+              
+              {message.role === "assistant" && (
+                <>
+                  <motion.button
+                    onClick={() => onRegenerate?.(message)}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="p-2 sm:p-1.5 rounded-lg bg-zinc-700/50 hover:bg-zinc-600/50 transition-colors group"
+                  >
+                    <RotateCcw className="w-4 sm:w-3.5 h-4 sm:h-3.5 text-zinc-400 group-hover:text-white" />
+                  </motion.button>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="p-2 sm:p-1.5 rounded-lg bg-zinc-700/50 hover:bg-zinc-600/50 transition-colors group"
+                  >
+                    <Volume2 className="w-4 sm:w-3.5 h-4 sm:h-3.5 text-zinc-400 group-hover:text-white" />
+                  </motion.button>
+                  
+                  <div className="flex items-center gap-1 ml-2">
+                    <motion.button
+                      onClick={() => onFeedback?.('positive')}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="p-2 sm:p-1.5 rounded-lg bg-zinc-700/50 hover:bg-emerald-600/20 transition-colors group"
+                    >
+                      <ThumbsUp className="w-4 sm:w-3.5 h-4 sm:h-3.5 text-zinc-400 group-hover:text-emerald-400" />
+                    </motion.button>
+                    
+                    <motion.button
+                      onClick={() => onFeedback?.('negative')}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="p-2 sm:p-1.5 rounded-lg bg-zinc-700/50 hover:bg-red-600/20 transition-colors group"
+                    >
+                      <ThumbsDown className="w-4 sm:w-3.5 h-4 sm:h-3.5 text-zinc-400 group-hover:text-red-400" />
+                    </motion.button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>
@@ -748,15 +793,15 @@ const UserMessage = ({ message }: { message: Message }) => (
     transition={{ duration: 0.3, ease: "easeOut" }}
     className="flex justify-end group"
   >
-    <div className="flex gap-3 max-w-[85%]">
+    <div className="flex gap-2 sm:gap-3 w-full sm:w-auto sm:max-w-[85%]">
       {/* Message Content */}
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         <motion.div
           whileHover={{ scale: 1.01 }}
           transition={{ duration: 0.2 }}
-          className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl rounded-tr-lg p-5 shadow-xl shadow-emerald-500/20 border border-emerald-400/20"
+          className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl rounded-tr-lg p-4 sm:p-5 shadow-xl shadow-emerald-500/20 border border-emerald-400/20"
         >
-          <p className="text-white leading-relaxed whitespace-pre-wrap">
+          <p className="text-white leading-relaxed whitespace-pre-wrap break-words">
             {message.content}
           </p>
           
@@ -790,7 +835,7 @@ const UserMessage = ({ message }: { message: Message }) => (
           </div>
         </motion.div>
         
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 mt-2 flex justify-end">
+        <div className="opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 transition-opacity duration-200 mt-2 flex justify-end">
           <CopyButton text={message.content} />
         </div>
       </div>
@@ -1158,7 +1203,7 @@ export default function AIPage() {
   return (
     <div className="md:h-[calc(100vh-2rem)] h-screen flex flex-col bg-black overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-b border-zinc-800 gap-4 sm:gap-2">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
             <Bot className="w-5 h-5 text-emerald-500" />
@@ -1170,29 +1215,32 @@ export default function AIPage() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={() => setShowQuickReplies(!showQuickReplies)}
-            className="px-4 py-2 text-sm text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors flex items-center gap-2"
+            className="flex-1 sm:flex-none px-4 py-2 text-sm text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
           >
             {showQuickReplies ? (
               <>
                 <ChevronDown className="w-4 h-4" />
-                Hide Suggestions
+                <span className="hidden sm:inline">Hide Suggestions</span>
+                <span className="sm:hidden">Suggestions</span>
               </>
             ) : (
               <>
                 <ChevronUp className="w-4 h-4" />
-                Show Suggestions
+                <span className="hidden sm:inline">Show Suggestions</span>
+                <span className="sm:hidden">Suggestions</span>
               </>
             )}
           </button>
           <button
             onClick={() => setShowTemplates(!showTemplates)}
-            className="px-4 py-2 text-sm text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors flex items-center gap-2"
+            className="flex-1 sm:flex-none px-4 py-2 text-sm text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
           >
             <Sparkles className="w-4 h-4" />
-            Templates
+            <span className="hidden sm:inline">Templates</span>
+            <span className="sm:hidden">Quick Use</span>
           </button>
         </div>
       </div>
@@ -1206,18 +1254,19 @@ export default function AIPage() {
             exit={{ height: 0, opacity: 0 }}
             className="border-b border-zinc-800 overflow-hidden"
           >
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-6">
               {Object.entries(messageTemplates).map(([category, templates]) => (
                 <div key={category}>
-                  <h3 className="text-sm font-medium text-zinc-400 mb-2 capitalize">
+                  <h3 className="text-sm font-medium text-zinc-400 mb-3 capitalize flex items-center gap-2">
+                    <div className="w-1 h-4 bg-emerald-500 rounded-full"></div>
                     {category}
                   </h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                     {templates.map((template, index) => (
                       <button
                         key={index}
                         onClick={() => handleTemplateSelect(template)}
-                        className="px-3 py-1.5 text-sm text-white bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors"
+                        className="w-full px-4 py-3 text-sm text-left text-white bg-zinc-800/80 hover:bg-zinc-700/80 transition-colors rounded-xl border border-zinc-700/50 hover:border-emerald-500/50"
                       >
                         {template}
                       </button>
@@ -1231,7 +1280,7 @@ export default function AIPage() {
       </AnimatePresence>
 
       {/* Chat Container */}
-      <div className={`flex-1 overflow-y-auto px-4 ${showQuickReplies ? 'pb-24' : 'pb-4'} scrollbar-hide`}>
+      <div className={`flex-1 overflow-y-auto px-4 pb-[180px] sm:pb-[140px] scrollbar-hide`}>
         <div className="w-full mx-auto flex flex-col min-h-full">
           <div className="space-y-4 py-4">
             {isLoadingHistory ? (
@@ -1264,7 +1313,8 @@ export default function AIPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="p-4 border-t border-zinc-800 bg-black relative z-10"
+            className="fixed bottom-[76px] sm:bottom-[84px] left-0 right-0 p-4 border-t border-zinc-800 bg-black/95 backdrop-blur-sm z-10 lg:left-20 data-[collapsed=false]:lg:left-64"
+            data-collapsed={isSidebarCollapsed}
           >
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1 h-4 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-full" />
@@ -1295,10 +1345,10 @@ export default function AIPage() {
 
       {/* Input Area */}
       <div 
-        className="sticky bottom-0 left-0 right-0 p-4 border-t border-zinc-800 bg-black/95 backdrop-blur-sm transition-all duration-300 lg:left-20 lg:right-0 data-[collapsed=false]:lg:left-64"
+        className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 border-t border-zinc-800 bg-black/95 backdrop-blur-sm z-20 lg:left-20 lg:right-0 data-[collapsed=false]:lg:left-64"
         data-collapsed={isSidebarCollapsed}
       >
-        <div className="flex gap-2 w-full mx-auto items-center">
+        <div className="flex gap-2 w-full mx-auto items-end">
           <div className="flex-1 relative">
             <textarea
               ref={inputRef}
@@ -1306,28 +1356,50 @@ export default function AIPage() {
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Type your message..."
-              className="w-full p-3 pr-24 bg-zinc-800/50 backdrop-blur-sm text-white rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 min-h-[44px] max-h-[120px] border border-zinc-700/50 text-sm sm:text-base"
+              className="w-full p-3 pr-[4.5rem] sm:pr-24 bg-zinc-800/50 backdrop-blur-sm text-white rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 min-h-[44px] max-h-[120px] border border-zinc-700/50 text-sm sm:text-base"
               rows={1}
             />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-              <ImageUpload onUpload={handleImageUpload} />
-              <VoiceRecorder onRecordingComplete={handleVoiceRecording} />
-              <button className="text-zinc-400 hover:text-emerald-500 transition-colors">
+            <div className="absolute right-2 sm:right-3 bottom-2 flex items-center gap-1 sm:gap-2">
+              <div className="hidden sm:flex items-center gap-2">
+                <ImageUpload onUpload={handleImageUpload} />
+                <VoiceRecorder onRecordingComplete={handleVoiceRecording} />
+              </div>
+              <button className="text-zinc-400 hover:text-emerald-500 transition-colors p-1.5">
                 <Smile className="w-5 h-5" />
               </button>
             </div>
           </div>
-          <button
-            onClick={handleSend}
-            disabled={!message.trim() && !uploadingImage || isLoading}
-            className="h-[44px] w-[44px] flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20"
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="flex sm:hidden">
+              <button
+                onClick={() => document.getElementById('mobileActions')?.click()}
+                className="h-[44px] w-[44px] flex items-center justify-center bg-zinc-800 text-white rounded-xl hover:bg-zinc-700 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+              <input
+                type="file"
+                id="mobileActions"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    handleImageUpload(e.target.files[0]);
+                  }
+                }}
+              />
+            </div>
+            <button
+              onClick={handleSend}
+              disabled={!message.trim() && !uploadingImage || isLoading}
+              className="h-[44px] w-[44px] flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

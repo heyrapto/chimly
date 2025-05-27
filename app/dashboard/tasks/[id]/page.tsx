@@ -36,7 +36,7 @@ export default function TaskDetail() {
         }
 
         const response = await fetch(
-          `https://chimlybackendmain.onrender.com/api/schedule`,
+          `https://chimlybackendmain.onrender.com/api/schedule/user`,
           {
             method: "POST",
             headers: {
