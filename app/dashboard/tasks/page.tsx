@@ -13,6 +13,7 @@ import {
   Trash2,
   CheckCircle,
   AlertCircle,
+  AlertTriangle,
   Circle,
 } from "lucide-react";
 import {
@@ -256,15 +257,45 @@ export default function TasksPage() {
       return <CheckCircle className="w-5 h-5 text-emerald-500" />;
     }
     
-    // Check if task is overdue (you might want to adjust this logic based on your needs)
+    // Check if task is overdue
     const dueDate = new Date(task.time);
     const now = new Date();
     if (dueDate < now) {
-      return <AlertCircle className="w-5 h-5 text-red-500" />;
+      return <AlertTriangle className="w-5 h-5 text-red-500" />;
     }
     
     // Pending task
-    return <Circle className="w-5 h-5 text-yellow-500" />;
+    return <Clock className="w-5 h-5 text-yellow-500" />;
+  };
+
+  const formatTimeAndDuration = (time: string, duration: string) => {
+    try {
+      // Format time
+      const timeDate = new Date(time);
+      const formattedTime = timeDate.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      // Format duration
+      const durationNum = parseInt(duration);
+      if (isNaN(durationNum)) return formattedTime;
+
+      let durationText;
+      if (durationNum < 60) {
+        durationText = `${durationNum}m`;
+      } else {
+        const hours = Math.floor(durationNum / 60);
+        const minutes = durationNum % 60;
+        durationText = minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+      }
+
+      return `${formattedTime} • ${durationText}`;
+    } catch (error) {
+      console.error("Error formatting time and duration:", error);
+      return "Invalid time";
+    }
   };
 
   return (
@@ -344,7 +375,7 @@ export default function TasksPage() {
                       <div>
                         <h3 className="text-white font-medium">{task.activity}</h3>
                         <p className="text-sm text-zinc-400">
-                          {task.time} • {task.duration + " Minutes"}
+                          {formatTimeAndDuration(task.time, task.duration)}
                         </p>
                       </div>
                     </div>
