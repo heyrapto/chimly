@@ -64,6 +64,7 @@ export default function RootLayout({
         <meta property="og:url" content="https://chimly.ai" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="theme-color" content="#000000" />
         <meta
           name="twitter:title"
           content="Chimly AI | Operational Intelligence for Teams"

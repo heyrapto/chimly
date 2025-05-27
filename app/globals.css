@@ -52,10 +52,14 @@ html, body {
   font-family: 'Lufga', 'Poppins', sans-serif;
 }
 
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+html {
   background-color: black;
+  height: 100%;
+}
+
+body {
+  background-color: black;
+  min-height: 100vh;
 }
 
 /* Custom scrollbar styles */

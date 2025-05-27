@@ -267,13 +267,11 @@ export default function TaskDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800">
-        <div className="text-center">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-emerald-500 mx-auto"></div>
-            <div className="absolute inset-0 rounded-full h-16 w-16 border-t-2 border-b-2 border-emerald-300 animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-          </div>
-          <p className="text-zinc-400 mt-4">Loading task details...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex gap-2">
+          <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce" />
+          <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce delay-100" />
+          <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce delay-200" />
         </div>
       </div>
     );
