@@ -74,7 +74,7 @@ export default function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [userInfo, setUserInfo] = useState<{ name: string; email: string } | null>(null);
+  const [userInfo, setUserInfo] = useState<{ name: string; email: string; isVerified: boolean } | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showQuickReplies, setShowQuickReplies] = useState(true);
   const [activeCategory, setActiveCategory] = useState<keyof typeof quickReplies>("general");
@@ -112,6 +112,7 @@ export default function DashboardLayout({
           setUserInfo({
             name: data.data.username,
             email: data.data.email,
+            isVerified: data.data.isVerified,
           });
         }
       } catch (error) {
@@ -333,7 +334,9 @@ export default function DashboardLayout({
                   <p className="text-sm font-medium text-white truncate">
                     {userInfo?.name || 'Loading...'}
                   </p>
-                  <BadgeCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  {userInfo?.isVerified && (
+                    <BadgeCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  )}
                 </div>
                 <p className="text-xs text-zinc-500 truncate">
                   {userInfo?.email || 'Loading...'}

@@ -801,9 +801,36 @@ const UserMessage = ({ message }: { message: Message }) => (
           transition={{ duration: 0.2 }}
           className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl rounded-tr-lg p-3 sm:p-5 shadow-xl shadow-emerald-500/20 border border-emerald-400/20"
         >
-          <p className="text-white leading-relaxed whitespace-pre-wrap break-words text-[13px] sm:text-base">
-            {message.content}
-          </p>
+          {message.attachments?.map((attachment, index) => (
+            <div key={index} className="mb-3">
+              {attachment.type === "image" && (
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-zinc-900">
+                  <Image
+                    src={attachment.url}
+                    alt="Uploaded image"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              )}
+              {attachment.type === "audio" && (
+                <div className="rounded-lg overflow-hidden bg-black/20 p-3">
+                  <audio 
+                    controls 
+                    className="w-full h-8 [&::-webkit-media-controls-panel]:bg-black/30 [&::-webkit-media-controls-current-time-display]:text-white [&::-webkit-media-controls-time-remaining-display]:text-white [&::-webkit-media-controls-timeline]:text-emerald-500 [&::-webkit-media-controls-play-button]:text-emerald-500 [&::-webkit-media-controls-play-button]:hover:text-emerald-400 [&::-webkit-media-controls-mute-button]:text-emerald-500 [&::-webkit-media-controls-mute-button]:hover:text-emerald-400"
+                  >
+                    <source src={attachment.url} type="audio/webm" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
+              )}
+            </div>
+          ))}
+          {message.content && (
+            <p className="text-white leading-relaxed whitespace-pre-wrap break-words text-[13px] sm:text-base">
+              {message.content}
+            </p>
+          )}
           
           <div className="flex items-center gap-2 text-[10px] sm:text-xs text-white/70 mt-2">
             <span>
@@ -997,6 +1024,7 @@ export default function AIPage() {
         role: "user",
         content: "",
         timestamp: new Date(),
+        status: "sent",
         attachments: [{
           type: "image",
           url: imageUrl
@@ -1004,6 +1032,31 @@ export default function AIPage() {
       };
       
       setMessages(prev => [...prev, newMessage]);
+
+      // Add AI response for image
+      const typingMessage: Message = {
+        role: "assistant",
+        content: "",
+        timestamp: new Date(),
+        typing: true
+      };
+
+      setMessages(prev => [...prev, typingMessage]);
+
+      // Here you would typically upload the image to your server
+      // and get AI response for the image
+      // For now, we'll just show a placeholder response
+      setTimeout(() => {
+        setMessages(prev => [
+          ...prev.slice(0, -1),
+          {
+            role: "assistant",
+            content: "I can see the image you've shared. What would you like to know about it?",
+            timestamp: new Date()
+          }
+        ]);
+      }, 1000);
+
     } catch (error) {
       console.error('Error uploading image:', error);
     } finally {
@@ -1019,6 +1072,7 @@ export default function AIPage() {
         role: "user",
         content: "",
         timestamp: new Date(),
+        status: "sent",
         attachments: [{
           type: "audio",
           url: audioUrl
@@ -1026,6 +1080,31 @@ export default function AIPage() {
       };
       
       setMessages(prev => [...prev, newMessage]);
+
+      // Add AI response for voice recording
+      const typingMessage: Message = {
+        role: "assistant",
+        content: "",
+        timestamp: new Date(),
+        typing: true
+      };
+
+      setMessages(prev => [...prev, typingMessage]);
+
+      // Here you would typically upload the audio to your server
+      // and get AI response for the voice recording
+      // For now, we'll just show a placeholder response
+      setTimeout(() => {
+        setMessages(prev => [
+          ...prev.slice(0, -1),
+          {
+            role: "assistant",
+            content: "I've received your voice message. What would you like me to do with it?",
+            timestamp: new Date()
+          }
+        ]);
+      }, 1000);
+
     } catch (error) {
       console.error('Error handling voice recording:', error);
     }
