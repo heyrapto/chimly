@@ -1,10 +1,34 @@
 "use client";
 
-import { Bot, Send, Clock, Check, CheckCheck, Sparkles, Smile, ChevronUp, ChevronDown } from "lucide-react";
+import { 
+  Bot, 
+  Send, 
+  Clock, 
+  Check, 
+  CheckCheck, 
+  Sparkles, 
+  Smile, 
+  ChevronUp, 
+  ChevronDown,
+  User,
+  Copy,
+  ThumbsUp,
+  ThumbsDown,
+  RotateCcw,
+  Volume2,
+  MessageSquare,
+  Heart,
+  Zap,
+  ImageIcon,
+  Mic,
+  X,
+  Loader2
+} from "lucide-react";
 import { useState, useEffect, useRef, ReactElement } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 // Quick reply suggestions based on context
 const quickReplies = {
@@ -52,6 +76,17 @@ interface Message {
   content: string;
   timestamp: Date;
   status?: "sending" | "sent" | "delivered";
+  attachments?: {
+    type: "image" | "audio";
+    url: string;
+  }[];
+  typing?: boolean;
+}
+
+interface MessageElement {
+  type: 'main-title' | 'section-title' | 'detail-item' | 'bullet' | 'text' | 'question' | 'divider';
+  content: string;
+  example?: string;
 }
 
 // Component to render structured AI messages
@@ -248,6 +283,531 @@ const MessageSkeleton = () => {
   );
 };
 
+// Image Upload Component
+const ImageUpload = ({ onUpload }: { onUpload: (file: File) => void }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      onUpload(file);
+    }
+  };
+
+  return (
+    <div>
+      <input
+        type="file"
+        ref={inputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
+      />
+      <button
+        onClick={() => inputRef.current?.click()}
+        className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors"
+        title="Upload image"
+      >
+        <ImageIcon className="w-5 h-5" />
+      </button>
+    </div>
+  );
+};
+
+// Voice Recorder Component
+const VoiceRecorder = ({ onRecordingComplete }: { onRecordingComplete: (blob: Blob) => void }) => {
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        onRecordingComplete(blob);
+        stream.getTracks().forEach(track => track.stop());
+        setRecordingTime(0);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={isRecording ? stopRecording : startRecording}
+        className={cn(
+          "p-2 rounded-lg transition-colors flex items-center gap-2",
+          isRecording 
+            ? "text-red-500 hover:text-red-400 hover:bg-red-500/10" 
+            : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+        )}
+        title={isRecording ? "Stop recording" : "Start recording"}
+      >
+        {isRecording ? (
+          <>
+            <span className="animate-pulse">●</span>
+            <span className="text-sm">{recordingTime}s</span>
+          </>
+        ) : (
+          <Mic className="w-5 h-5" />
+        )}
+      </button>
+    </div>
+  );
+};
+
+const CopyButton = ({ text }: { text: string }) => {
+  const [copied, setCopied] = useState(false);
+  
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <motion.button
+      onClick={handleCopy}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      className="p-1.5 rounded-lg bg-zinc-700/50 hover:bg-zinc-600/50 transition-colors group"
+    >
+      {copied ? (
+        <Check className="w-3.5 h-3.5 text-emerald-400" />
+      ) : (
+        <Copy className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white" />
+      )}
+    </motion.button>
+  );
+};
+
+const MessageActions = ({ message, onRegenerate, onFeedback }: { 
+  message: Message, 
+  onRegenerate?: (message: Message) => void,
+  onFeedback?: (type: 'positive' | 'negative') => void 
+}) => {
+  const [showActions, setShowActions] = useState(false);
+
+  return (
+    <div 
+      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+      onMouseEnter={() => setShowActions(true)}
+      onMouseLeave={() => setShowActions(false)}
+    >
+      <div className="flex items-center gap-1 mt-3">
+        <CopyButton text={message.content} />
+        
+        {message.role === "assistant" && (
+          <>
+            <motion.button
+              onClick={() => onRegenerate?.(message)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="p-1.5 rounded-lg bg-zinc-700/50 hover:bg-zinc-600/50 transition-colors group"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white" />
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="p-1.5 rounded-lg bg-zinc-700/50 hover:bg-zinc-600/50 transition-colors group"
+            >
+              <Volume2 className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white" />
+            </motion.button>
+            
+            <div className="flex items-center gap-1 ml-2">
+              <motion.button
+                onClick={() => onFeedback?.('positive')}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="p-1.5 rounded-lg bg-zinc-700/50 hover:bg-emerald-600/20 transition-colors group"
+              >
+                <ThumbsUp className="w-3.5 h-3.5 text-zinc-400 group-hover:text-emerald-400" />
+              </motion.button>
+              
+              <motion.button
+                onClick={() => onFeedback?.('negative')}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="p-1.5 rounded-lg bg-zinc-700/50 hover:bg-red-600/20 transition-colors group"
+              >
+                <ThumbsDown className="w-3.5 h-3.5 text-zinc-400 group-hover:text-red-400" />
+              </motion.button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const TypingIndicator = () => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="flex items-center gap-2 text-emerald-400 text-sm"
+  >
+    <div className="flex gap-1">
+      <motion.div
+        className="w-2 h-2 bg-emerald-400 rounded-full"
+        animate={{ scale: [1, 1.2, 1] }}
+        transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+      />
+      <motion.div
+        className="w-2 h-2 bg-emerald-400 rounded-full"
+        animate={{ scale: [1, 1.2, 1] }}
+        transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
+      />
+      <motion.div
+        className="w-2 h-2 bg-emerald-400 rounded-full"
+        animate={{ scale: [1, 1.2, 1] }}
+        transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
+      />
+    </div>
+    <span>Chimly is thinking...</span>
+  </motion.div>
+);
+
+const formatMessageContent = (content: string) => {
+  // Split content by lines first to handle different formatting
+  const lines = content.split('\n');
+  const elements: MessageElement[][] = [];
+  let currentSection: MessageElement[] = [];
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Skip empty lines but use them as section breaks
+    if (!line) {
+      if (currentSection.length > 0) {
+        elements.push([...currentSection]);
+        currentSection = [];
+      }
+      continue;
+    }
+    
+    // Handle horizontal rules
+    if (line === '---') {
+      if (currentSection.length > 0) {
+        elements.push([...currentSection]);
+        currentSection = [];
+      }
+      elements.push([{ type: 'divider', content: '' }]);
+      continue;
+    }
+    
+    // Handle main headings with emoji (# ✨)
+    if (line.startsWith('# ')) {
+      if (currentSection.length > 0) {
+        elements.push([...currentSection]);
+        currentSection = [];
+      }
+      elements.push([{ type: 'main-title', content: line.replace('# ', '').trim() }]);
+      continue;
+    }
+    
+    // Handle section headings (##)
+    if (line.startsWith('## ')) {
+      if (currentSection.length > 0) {
+        elements.push([...currentSection]);
+        currentSection = [];
+      }
+      currentSection.push({ type: 'section-title', content: line.replace('## ', '').trim() });
+      continue;
+    }
+    
+    // Handle bullet points with asterisks and examples in parentheses
+    if (line.startsWith('* ')) {
+      const content = line.slice(2);
+      const match = content.match(/(.*?)\((.*?)\)/);
+      
+      if (match) {
+        // Question with example
+        currentSection.push({
+          type: 'question',
+          content: match[1].trim(),
+          example: match[2].trim()
+        });
+      } else {
+        // Regular bullet point
+        currentSection.push({
+          type: 'bullet',
+          content: content
+        });
+      }
+      continue;
+    }
+    
+    // Handle bullet points with dashes and bold text
+    if (line.startsWith('- **')) {
+      currentSection.push({ type: 'detail-item', content: line.replace('- ', '').trim() });
+      continue;
+    }
+    
+    // Handle regular bullet points with dashes
+    if (line.startsWith('- ')) {
+      currentSection.push({ type: 'bullet', content: line.replace('- ', '').trim() });
+      continue;
+    }
+    
+    // Handle regular text
+    currentSection.push({ type: 'text', content: line });
+  }
+  
+  // Add the last section
+  if (currentSection.length > 0) {
+    elements.push([...currentSection]);
+  }
+  
+  return elements.map((section, sectionIndex) => (
+    <div key={sectionIndex} className="mb-4 last:mb-0">
+      {section.map((element, elementIndex) => {
+        switch (element.type) {
+          case 'divider':
+            return (
+              <div key={elementIndex} className="my-6">
+                <div className="h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
+              </div>
+            );
+            
+          case 'main-title':
+            return (
+              <div key={elementIndex} className="mb-4">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-2">
+                  {element.content}
+                </h2>
+              </div>
+            );
+            
+          case 'section-title':
+            return (
+              <h3 key={elementIndex} className="text-lg font-semibold text-emerald-400 mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-emerald-400 rounded-full"></span>
+                {element.content.replace(':', '')}
+              </h3>
+            );
+            
+          case 'question':
+            return (
+              <div key={elementIndex} className="mb-4 pl-4 border-l-2 border-emerald-500/30">
+                <p className="text-zinc-200 leading-relaxed">
+                  {element.content}
+                  {element.example && (
+                    <span className="text-zinc-400 italic ml-1">
+                      (e.g., "{element.example}")
+                    </span>
+                  )}
+                </p>
+              </div>
+            );
+            
+          case 'detail-item':
+            const detailText = element.content.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>');
+            return (
+              <div key={elementIndex} className="mb-2 pl-4 border-l-2 border-emerald-500/30">
+                <p 
+                  className="text-zinc-200 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: detailText }}
+                />
+              </div>
+            );
+            
+          case 'bullet':
+            return (
+              <div key={elementIndex} className="flex items-start gap-3 mb-2">
+                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full mt-2 flex-shrink-0" />
+                <span className="text-zinc-200 leading-relaxed">{element.content}</span>
+              </div>
+            );
+            
+          case 'text':
+            const formattedText = element.content.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
+            return (
+              <p 
+                key={elementIndex} 
+                className="text-zinc-200 leading-relaxed mb-2"
+                dangerouslySetInnerHTML={{ __html: formattedText }}
+              />
+            );
+            
+          default:
+            return null;
+        }
+      })}
+    </div>
+  ));
+};
+
+const AssistantMessage = ({ message, onRegenerate, onFeedback }: { 
+  message: Message, 
+  onRegenerate?: (message: Message) => void,
+  onFeedback?: (type: 'positive' | 'negative') => void 
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    transition={{ duration: 0.3, ease: "easeOut" }}
+    className="flex justify-start group"
+  >
+    <div className="flex gap-3 max-w-[85%]">
+      {/* Avatar */}
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.1 }}
+        className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20"
+      >
+        <Bot className="w-4 h-4 text-white" />
+      </motion.div>
+      
+      {/* Message Content */}
+      <div className="flex-1">
+        <div className="bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 backdrop-blur-sm rounded-2xl rounded-tl-lg p-5 shadow-xl border border-zinc-700/30">
+          <div className="space-y-2">
+            {message.typing ? (
+              <TypingIndicator />
+            ) : (
+              <div className="prose prose-invert max-w-none">
+                {formatMessageContent(message.content)}
+              </div>
+            )}
+          </div>
+          
+          {!message.typing && (
+            <div className="flex items-center justify-between mt-4 pt-3 border-t border-zinc-700/30">
+              <span className="text-xs text-zinc-400">
+                {message.timestamp.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+              <div className="flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-emerald-400" />
+                <span className="text-xs text-emerald-400">AI</span>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {!message.typing && (
+          <MessageActions 
+            message={message} 
+            onRegenerate={onRegenerate}
+            onFeedback={onFeedback}
+          />
+        )}
+      </div>
+    </div>
+  </motion.div>
+);
+
+const UserMessage = ({ message }: { message: Message }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    transition={{ duration: 0.3, ease: "easeOut" }}
+    className="flex justify-end group"
+  >
+    <div className="flex gap-3 max-w-[85%]">
+      {/* Message Content */}
+      <div className="flex-1">
+        <motion.div
+          whileHover={{ scale: 1.01 }}
+          transition={{ duration: 0.2 }}
+          className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl rounded-tr-lg p-5 shadow-xl shadow-emerald-500/20 border border-emerald-400/20"
+        >
+          <p className="text-white leading-relaxed whitespace-pre-wrap">
+            {message.content}
+          </p>
+          
+          <div className="flex items-center gap-2 text-xs text-white/70 mt-2">
+            <span>
+              {message.timestamp.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+            <span className="flex items-center gap-1">
+              {message.status === "sending" && (
+                <>
+                  <Clock className="w-3 h-3" />
+                  <span>Sending</span>
+                </>
+              )}
+              {message.status === "sent" && (
+                <>
+                  <Check className="w-3 h-3" />
+                  <span>Sent</span>
+                </>
+              )}
+              {message.status === "delivered" && (
+                <>
+                  <CheckCheck className="w-3 h-3" />
+                  <span>Delivered</span>
+                </>
+              )}
+            </span>
+          </div>
+        </motion.div>
+        
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 mt-2 flex justify-end">
+          <CopyButton text={message.content} />
+        </div>
+      </div>
+      
+      {/* Avatar */}
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.1 }}
+        className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/20"
+      >
+        <User className="w-4 h-4 text-white" />
+      </motion.div>
+    </div>
+  </motion.div>
+);
+
 export default function AIPage() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -257,6 +817,7 @@ export default function AIPage() {
   const [showQuickReplies, setShowQuickReplies] = useState(true);
   const [activeCategory, setActiveCategory] = useState<keyof typeof quickReplies>("general");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
@@ -366,6 +927,126 @@ export default function AIPage() {
     inputRef.current?.focus();
   };
 
+  const handleImageUpload = async (file: File) => {
+    try {
+      setUploadingImage(true);
+      const imageUrl = URL.createObjectURL(file);
+      
+      const newMessage: Message = {
+        role: "user",
+        content: "",
+        timestamp: new Date(),
+        attachments: [{
+          type: "image",
+          url: imageUrl
+        }]
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleVoiceRecording = async (blob: Blob) => {
+    try {
+      const audioUrl = URL.createObjectURL(blob);
+      
+      const newMessage: Message = {
+        role: "user",
+        content: "",
+        timestamp: new Date(),
+        attachments: [{
+          type: "audio",
+          url: audioUrl
+        }]
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
+    } catch (error) {
+      console.error('Error handling voice recording:', error);
+    }
+  };
+
+  const handleRegenerate = async (messageToRegenerate: Message) => {
+    // Find the index of the message to regenerate
+    const index = messages.findIndex(msg => 
+      msg.content === messageToRegenerate.content && 
+      msg.timestamp === messageToRegenerate.timestamp
+    );
+    
+    if (index === -1) return;
+
+    // Get the user message that triggered this response
+    const userMessage = messages[index - 1];
+    if (!userMessage || userMessage.role !== "user") return;
+
+    // Add typing indicator
+    setMessages(prev => [
+      ...prev.slice(0, index),
+      { ...messageToRegenerate, typing: true }
+    ]);
+
+    try {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      if (!token || !userId) {
+        router.push("/login");
+        return;
+      }
+
+      const response = await fetch(
+        "https://chimlybackendmain.onrender.com/api/schedule",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            input: userMessage.content,
+            userId: userId,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to regenerate response");
+      }
+
+      const data = await response.json();
+      
+      if (data.message) {
+        setMessages(prev => [
+          ...prev.slice(0, index),
+          {
+            role: "assistant",
+            content: data.message,
+            timestamp: new Date(),
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error("Error regenerating response:", error);
+      setMessages(prev => [
+        ...prev.slice(0, index),
+        {
+          role: "assistant",
+          content: "Sorry, I had trouble regenerating the response. Please try again.",
+          timestamp: new Date(),
+        }
+      ]);
+    }
+  };
+
+  const handleFeedback = async (type: 'positive' | 'negative') => {
+    // Implement feedback handling here
+    console.log('Feedback:', type);
+  };
+
   const handleSend = async () => {
     if (!message.trim()) return;
 
@@ -377,16 +1058,22 @@ export default function AIPage() {
       return;
     }
 
-    const newMessage: Message = {
+    const newUserMessage: Message = {
       role: "user",
       content: message,
       timestamp: new Date(),
       status: "sending",
     };
 
-    setMessages((prev) => [...prev, newMessage]);
+    const typingMessage: Message = {
+      role: "assistant",
+      content: "",
+      timestamp: new Date(),
+      typing: true
+    };
+
+    setMessages((prev) => [...prev, newUserMessage, typingMessage]);
     setMessage("");
-    setIsLoading(true);
 
     try {
       // First, add the user message to the conversation
@@ -431,32 +1118,33 @@ export default function AIPage() {
 
       const data = await aiResponse.json();
       
-      // Update the user message status
+      // Update the user message status and replace typing indicator with actual response
       setMessages((prev) =>
-        prev.map((msg) =>
-          msg === newMessage ? { ...msg, status: "delivered" } : msg
-        )
+        prev.map((msg, index) => {
+          if (index === prev.length - 2) { // User message
+            return { ...msg, status: "delivered" };
+          }
+          if (index === prev.length - 1) { // Replace typing indicator
+            return {
+              role: "assistant",
+              content: data.message,
+              timestamp: new Date(),
+            };
+          }
+          return msg;
+        })
       );
-
-      // Add the AI response
-      if (data.message) {
-        const aiMessage: Message = {
-          role: "assistant",
-          content: data.message,
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, aiMessage]);
-      }
     } catch (error) {
       console.error("Error in conversation:", error);
-      const errorMessage: Message = {
-        role: "assistant",
-        content: "Sorry, I'm having trouble connecting right now. Please try again later.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
+      // Remove typing indicator and add error message
+      setMessages((prev) => [
+        ...prev.slice(0, -1), // Remove typing indicator
+        {
+          role: "assistant",
+          content: "Sorry, I'm having trouble connecting right now. Please try again later.",
+          timestamp: new Date(),
+        }
+      ]);
     }
   };
 
@@ -550,85 +1238,20 @@ export default function AIPage() {
               <MessageSkeleton />
             ) : (
               messages.map((msg, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`flex ${msg.role === "assistant" ? "justify-start" : "justify-end"}`}
-                >
-                  <div
-                    className={`max-w-[85%] rounded-2xl p-5 ${
-                      msg.role === "assistant"
-                        ? "bg-zinc-800 text-white"
-                        : "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20"
-                    }`}
-                  >
-                    {msg.role === "assistant" ? (
-                      <StructuredMessage content={msg.content} />
-                    ) : (
-                      <div className="space-y-2">
-                        <p className="whitespace-pre-wrap text-white/90 leading-relaxed">{msg.content}</p>
-                        <div className="flex items-center gap-2 text-xs text-white/70">
-                          <span>
-                            {msg.timestamp.toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                          {msg.role === "user" && (
-                            <span className="flex items-center gap-1">
-                              {msg.status === "sending" && (
-                                <>
-                                  <Clock className="w-3 h-3" />
-                                  <span>Sending</span>
-                                </>
-                              )}
-                              {msg.status === "sent" && (
-                                <>
-                                  <Check className="w-3 h-3" />
-                                  <span>Sent</span>
-                                </>
-                              )}
-                              {msg.status === "delivered" && (
-                                <>
-                                  <CheckCheck className="w-3 h-3" />
-                                  <span>Delivered</span>
-                                </>
-                              )}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    {msg.role === "assistant" && (
-                      <div className="flex items-center gap-2 mt-4 pt-3 border-t border-zinc-700/50 text-xs opacity-70">
-                        <span>
-                          {msg.timestamp.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
+                <div key={index}>
+                  {msg.role === "assistant" ? (
+                    <AssistantMessage 
+                      message={msg}
+                      onRegenerate={handleRegenerate}
+                      onFeedback={handleFeedback}
+                    />
+                  ) : (
+                    <UserMessage message={msg} />
+                  )}
+                </div>
               ))
             )}
-            {isLoading && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex justify-start"
-              >
-                <div className="bg-zinc-800 rounded-2xl p-4">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-zinc-600 rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-zinc-600 rounded-full animate-bounce delay-100" />
-                    <div className="w-2 h-2 bg-zinc-600 rounded-full animate-bounce delay-200" />
-                  </div>
-                </div>
-              </motion.div>
-            )}
+            {isLoading && <MessageSkeleton />}
             <div ref={messagesEndRef} />
           </div>
         </div>
@@ -683,19 +1306,27 @@ export default function AIPage() {
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Type your message..."
-              className="w-full p-3 pr-10 bg-zinc-800/50 backdrop-blur-sm text-white rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 min-h-[44px] max-h-[120px] border border-zinc-700/50"
+              className="w-full p-3 pr-24 bg-zinc-800/50 backdrop-blur-sm text-white rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 min-h-[44px] max-h-[120px] border border-zinc-700/50 text-sm sm:text-base"
               rows={1}
             />
-            <button className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-emerald-500 transition-colors">
-              <Smile className="w-5 h-5" />
-            </button>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <ImageUpload onUpload={handleImageUpload} />
+              <VoiceRecorder onRecordingComplete={handleVoiceRecording} />
+              <button className="text-zinc-400 hover:text-emerald-500 transition-colors">
+                <Smile className="w-5 h-5" />
+              </button>
+            </div>
           </div>
           <button
             onClick={handleSend}
-            disabled={!message.trim() || isLoading}
+            disabled={!message.trim() && !uploadingImage || isLoading}
             className="h-[44px] w-[44px] flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20"
           >
-            <Send className="w-4 h-4" />
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
           </button>
         </div>
       </div>

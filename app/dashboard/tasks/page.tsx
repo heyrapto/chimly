@@ -255,7 +255,7 @@ export default function TasksPage() {
             </p>
           </div>
           <Link
-            href="/dashboard/tasks/new"
+            href="/dashboard/ai"
             className="w-full sm:w-auto px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" />
@@ -311,56 +311,47 @@ export default function TasksPage() {
             currentTasks.map((task) => (
               <div
                 key={task._id}
-                className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-zinc-700 transition-all duration-300"
+                className="group relative bg-zinc-900 rounded-lg p-4 hover:bg-zinc-800/50 transition-colors"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1">
-                      <span className="text-xl" role="img" aria-label="status">
-                        {task.statusEmoji || "⏳"}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-white">{task.activity}</h3>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="flex items-center text-xs text-zinc-400">
-                          <Clock className="w-3 h-3 mr-1" />
-                          {task.duration} min
-                        </span>
-                        <span className="text-xs text-zinc-500">
-                          Created {new Date(task.createdAt).toLocaleDateString()}
-                        </span>
+                <Link href={`/dashboard/tasks/${task._id}`} className="block">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <span className="text-xl">{task.statusEmoji}</span>
+                      <div>
+                        <h3 className="text-white font-medium">{task.activity}</h3>
+                        <p className="text-sm text-zinc-400">
+                          {task.time} • {task.duration}
+                        </p>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button 
-                      className={`px-2 py-1 rounded text-xs ${task.completed ? 'bg-emerald-500/20 text-emerald-500' : 'bg-zinc-700/20 text-zinc-400'}`}
-                    >
-                      {task.completed ? 'Completed' : 'In Progress'}
-                    </button>
-                    <div className="relative">
-                      <button 
-                        className="p-1 hover:bg-zinc-800 rounded"
-                        onClick={() => setOpenMenuId(openMenuId === task._id ? null : task._id)}
+                    <div className="flex items-center space-x-4">
+                      <span className="text-sm text-zinc-400">
+                        {new Date(task.createdAt).toLocaleDateString()}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault(); // Prevent navigation to detail page
+                          setOpenMenuId(openMenuId === task._id ? null : task._id);
+                        }}
+                        className="p-1 hover:bg-zinc-700 rounded-lg transition-colors"
                       >
                         <MoreVertical className="w-4 h-4 text-zinc-400" />
                       </button>
-                      
-                      {openMenuId === task._id && (
-                        <div className="absolute right-0 mt-1 w-48 bg-zinc-800 rounded-lg shadow-lg border border-zinc-700 py-1 z-10">
-                          <button
-                            onClick={() => handleDeleteTask(task._id)}
-                            className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-zinc-700 flex items-center gap-2"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            Delete Task
-                          </button>
-                        </div>
-                      )}
                     </div>
                   </div>
-                </div>
+                </Link>
+                
+                {openMenuId === task._id && (
+                  <div className="absolute right-4 top-12 w-48 bg-zinc-800 rounded-lg shadow-lg py-1 z-10">
+                    <button
+                      onClick={() => handleDeleteTask(task._id)}
+                      className="w-full px-4 py-2 text-left text-red-500 hover:bg-zinc-700 flex items-center"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Task
+                    </button>
+                  </div>
+                )}
               </div>
             ))
           )}
