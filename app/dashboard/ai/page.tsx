@@ -1346,7 +1346,7 @@ This will help me give you a better response!`,
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-[76px] sm:bottom-[84px] left-0 right-0 p-4 border-t border-zinc-800 bg-black/95 backdrop-blur-sm z-10 lg:left-20 data-[collapsed=false]:lg:left-64"
+            className="fixed bottom-[76px] sm:bottom-[84px] left-0 right-0 p-4 border-t border-zinc-800 bg-black/95 backdrop-blur-sm z-30 lg:left-20 data-[collapsed=false]:lg:left-64"
             data-collapsed={isSidebarCollapsed}
           >
             <div className="flex items-center gap-2 mb-3">
@@ -1378,9 +1378,23 @@ This will help me give you a better response!`,
 
       {/* Input Area */}
       <div 
-        className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 border-t border-zinc-800 bg-black/95 backdrop-blur-sm z-20 lg:left-20 lg:right-0 data-[collapsed=false]:lg:left-64"
+        className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 backdrop-blur-sm z-20 lg:left-20 lg:right-0 data-[collapsed=false]:lg:left-64"
         data-collapsed={isSidebarCollapsed}
       >
+        {/* Quick Suggestions Toggle - Mobile Only */}
+        <div className="flex justify-end mb-2 sm:hidden z-50">
+          <button
+            onClick={() => setShowQuickReplies(!showQuickReplies)}
+            className="p-2 text-zinc-400 hover:text-white bg-transparent border rounded-full transition-colors"
+          >
+            {showQuickReplies ? (
+              <ChevronDown className="w-5 h-5" />
+            ) : (
+              <ChevronUp className="w-5 h-5" />
+            )}
+          </button>
+        </div>
+
         <div className="flex gap-2 w-full mx-auto items-center">
           <div className="flex-1 relative">
             <textarea
@@ -1397,29 +1411,35 @@ This will help me give you a better response!`,
                 <ImageUpload onUpload={handleImageUpload} />
                 <VoiceRecorder onRecordingComplete={handleVoiceRecording} />
               </div>
-              {/* <button className="text-zinc-400 hover:text-emerald-500 transition-colors p-1.5">
-                <Smile className="w-5 h-5" />
-              </button> */}
+              {/* Mobile Actions Menu */}
+              <div className="flex sm:hidden items-center">
+                <button
+                  onClick={() => document.getElementById('mobileActions')?.click()}
+                  className="p-1.5 text-zinc-400 hover:text-white transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+                <input
+                  type="file"
+                  id="mobileActions"
+                  className="hidden"
+                  accept="image/*,audio/*"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      const file = e.target.files[0];
+                      if (file.type.startsWith('image/')) {
+                        handleImageUpload(file);
+                      }
+                    }
+                  }}
+                />
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex sm:hidden">
-              <button
-                onClick={() => document.getElementById('mobileActions')?.click()}
-                className="h-[44px] w-[44px] flex items-center justify-center bg-zinc-800 text-white rounded-xl hover:bg-zinc-700 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-              <input
-                type="file"
-                id="mobileActions"
-                className="hidden"
-                onChange={(e) => {
-                  if (e.target.files?.[0]) {
-                    handleImageUpload(e.target.files[0]);
-                  }
-                }}
-              />
+          <div className="flex items-center">
+            {/* Voice Recorder - Mobile */}
+            <div className="sm:hidden mr-2">
+              <VoiceRecorder onRecordingComplete={handleVoiceRecording} />
             </div>
             <button
               onClick={handleSend}
