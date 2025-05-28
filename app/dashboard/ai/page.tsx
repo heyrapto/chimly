@@ -1403,7 +1403,7 @@ This will help me give you a better response!`,
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Type your message..."
-              className="w-full p-3 pr-[4.5rem] sm:pr-24 bg-zinc-800/50 backdrop-blur-sm text-white rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 min-h-[44px] max-h-[120px] border border-zinc-700/50 text-sm sm:text-base"
+              className="w-full p-3 pr-[4.5rem] sm:pr-24 bg-zinc-800/50 backdrop-blur-sm text-white rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 min-h-[44px] max-h-[120px] border border-zinc-700/50 text-[16px] sm:text-base"
               rows={1}
             />
             <div className="absolute right-2 sm:right-3 bottom-3 flex items-center gap-1 sm:gap-2">

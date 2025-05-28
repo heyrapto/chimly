@@ -81,6 +81,14 @@ export default function RootLayout({
           name="twitter:image"
           content="https://chimly.ai/assets/chimly.png"
         />
+
+<style>{`
+          @media screen and (max-width: 767px) {
+            input, select, textarea {
+              font-size: 16px;
+            }
+          }
+        `}</style>
       </head>
       <body>
         {children}
