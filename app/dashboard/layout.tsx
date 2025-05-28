@@ -279,37 +279,40 @@ export default function DashboardLayout({
               Settings
             </h3>
             <nav className="space-y-1">
-              {[
-                {
-                  href: "/dashboard/settings",
-                  icon: Settings,
-                  label: "Settings",
-                },
-                {
-                  href: "/dashboard/notifications",
-                  icon: Bell,
-                  label: "Notifications",
-                },
-              ].map((item) => (
-                <div
-                  key={item.href}
-                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium text-zinc-500 rounded-lg ${
-                    isCollapsed ? "lg:justify-center" : ""
-                  }`}
-                >
-                  <item.icon
-                    className={`${isCollapsed ? "lg:w-8 lg:h-8" : "w-4 h-4"}`}
-                  />
-                  {!isCollapsed && (
-                    <div className="flex items-center justify-between w-full">
-                      <span>{item.label}</span>
-                      <div className="text-xs px-2 py-0.5 rounded-full bg-zinc-800/50">
-                        Coming Soon
-                      </div>
+              <Link
+                href="/dashboard/settings"
+                className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  isCollapsed ? "lg:justify-center" : ""
+                } ${
+                  isActive('/dashboard/settings')
+                    ? "bg-emerald-500/10 text-emerald-500"
+                    : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                }`}
+              >
+                <Settings className={`${isCollapsed ? "lg:w-8 lg:h-8" : "w-4 h-4"}`} />
+                <span className={isCollapsed ? "lg:hidden" : ""}>Settings</span>
+              </Link>
+
+              <Link
+                href="/dashboard/notifications"
+                className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  isCollapsed ? "lg:justify-center" : ""
+                } ${
+                  isActive('/dashboard/notifications')
+                    ? "bg-emerald-500/10 text-emerald-500"
+                    : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                }`}
+              >
+                <Bell className={`${isCollapsed ? "lg:w-8 lg:h-8" : "w-4 h-4"}`} />
+                {!isCollapsed && (
+                  <div className="flex items-center justify-between w-full">
+                    <span>Notifications</span>
+                    <div className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
+                      New
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                )}
+              </Link>
             </nav>
           </div>
 
