@@ -26,6 +26,7 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import ProtectedRoute from "@/components/ui/routes/protected";
+import Modal from "@/components/ui/modal";
 // Quick reply suggestions based on context
 const quickReplies = {
   general: [
@@ -78,6 +79,7 @@ export default function DashboardLayout({
   const [showTemplates, setShowTemplates] = useState(false);
   const [showQuickReplies, setShowQuickReplies] = useState(true);
   const [activeCategory, setActiveCategory] = useState<keyof typeof quickReplies>("general");
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -127,6 +129,11 @@ export default function DashboardLayout({
       return pathname === path;
     }
     return pathname.startsWith(path);
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    router.replace("/login");
   };
 
   return (
@@ -342,10 +349,7 @@ export default function DashboardLayout({
                 </p>
               </div>
               <button
-                onClick={() => {
-                  localStorage.clear(); // Clear all localStorage items
-                  router.replace("/login");
-                }}
+                onClick={() => setShowLogoutModal(true)}
                 className="p-2 text-zinc-400 hover:text-white transition-colors"
                 title="Logout"
               >
@@ -491,6 +495,33 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <Modal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Confirm Logout"
+      >
+        <div className="space-y-4">
+          <p className="text-zinc-300">
+            Are you sure you want to log out? You will need to log in again to access your account.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setShowLogoutModal(false)}
+              className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white bg-zinc-800/50 hover:bg-zinc-700/50 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
     </ProtectedRoute>
   );
