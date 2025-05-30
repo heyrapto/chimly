@@ -1,5 +1,6 @@
 "use client";
 
+import ProtectedRoute from "@/components/ui/routes/protected";
 import { CheckSquare, Users, BarChart } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -84,6 +85,7 @@ export default function DashboardPage() {
   }
 
   return (
+    <ProtectedRoute>
     <>
       {/* Header */}
       {/* <div className="flex sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
@@ -158,5 +160,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </>
+    </ProtectedRoute>
   );
 }

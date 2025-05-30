@@ -54,7 +54,8 @@ export default function LoginPage() {
       setSuccess("Login successful!");
 
       // Force a hard navigation
-      window.location.href = "/dashboard";
+      // window.location.href = "/dashboard";
+      router.push("/dashboard");
     } catch (err: any) {
       console.error("Login error:", err);
       setError(err.message || "Login failed");

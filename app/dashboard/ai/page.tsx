@@ -126,19 +126,107 @@ const StructuredMessage = ({ content }: { content: string }) => {
     };
 
     const formatText = (text: string) => {
+      // First, normalize line endings
+      let formattedText = text.replace(/\r\n/g, '\n');
+      
+      // Handle section titles with emojis (### Title: Description 🧑‍💻)
+      formattedText = formattedText.replace(/^###\s*(.+?)(?:\s*🧑‍💻|\s*💡|\s*)$/gm, (match, title) => {
+        return `<h3 class="text-2xl font-bold text-white mb-6 border-b border-zinc-700 pb-3">${title}</h3>`;
+      });
+      
+      // Handle secondary headings (##)
+      formattedText = formattedText.replace(/^##\s+(.+)$/gm, (_, title) => {
+        return `<h2 class="text-xl font-semibold text-white mb-4 mt-8">${title}</h2>`;
+      });
+
+      // Handle tertiary headings (###)
+      formattedText = formattedText.replace(/^###\s+(.+)$/gm, (_, title) => {
+        return `<h3 class="text-lg font-medium text-white mb-3 mt-6">${title}</h3>`;
+      });
+
+      // Handle quaternary headings (####)
+      formattedText = formattedText.replace(/^####\s+(.+)$/gm, (_, title) => {
+        return `<h4 class="text-base font-medium text-zinc-200 mb-3 mt-4">${title}</h4>`;
+      });
+      
+      // Handle bold section headers with colons at the start of a line
+      formattedText = formattedText.split('\n').map(line => {
+        if (line.trim().match(/^\*\*([^*:]+):\*\*$/)) {
+          const title = line.trim().replace(/^\*\*|\*\*$/g, '').replace(/:$/, '');
+          return `<h4 class="text-lg font-semibold text-emerald-400 mb-3 mt-4 flex items-center gap-2">
+            <span class="w-1 h-4 bg-emerald-400 rounded-full"></span>
+            ${title}:
+          </h4>`;
+        }
+        return line;
+      }).join('\n');
+
+      // Handle bullet points with asterisks and examples in parentheses
+      formattedText = formattedText.split('\n').map(line => {
+        if (line.trim().startsWith('* ')) {
+          const content = line.slice(2);
+          const match = content.match(/(.*?)\((.*?)\)/);
+          
+          if (match) {
+            // Question with example
+            return `<div class="mb-4 pl-4 border-l-2 border-emerald-500/30">
+              <p class="text-zinc-200 leading-relaxed">
+                ${match[1].trim()}
+                <span class="text-zinc-400 italic ml-1">
+                  (e.g., "${match[2].trim()}")
+                </span>
+              </p>
+            </div>`;
+          } else {
+            // Regular bullet point
+            return `<div class="flex items-start gap-3 mb-2">
+              <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></span>
+              <span class="text-zinc-200 leading-relaxed">${content}</span>
+            </div>`;
+          }
+        }
+        return line;
+      }).join('\n');
+
+      // Handle bullet points with dashes and bold text
+      formattedText = formattedText.split('\n').map(line => {
+        if (line.trim().startsWith('- **')) {
+          const content = line.replace('- ', '').trim();
+          return `<div class="mb-2 pl-4 border-l-2 border-emerald-500/30">
+            <p class="text-zinc-200 leading-relaxed">${content}</p>
+          </div>`;
+        } else if (line.trim().startsWith('- ')) {
+          const content = line.replace('- ', '').trim();
+          return `<div class="flex items-start gap-3 mb-2">
+            <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></span>
+            <span class="text-zinc-200 leading-relaxed">${content}</span>
+          </div>`;
+        }
+        return line;
+      }).join('\n');
+      
+      // Handle example text with colon pattern (e.g., **Example text:**)
+      formattedText = formattedText.replace(/\*\*(Example[^:]+):\*\*/g, '<strong class="font-semibold text-emerald-400">$1:</strong>');
+      
+      // Handle special text patterns (e.g., "(e.g., "QA")")
+      formattedText = formattedText.replace(/\(e\.g\.,\s*"([^"]+)"\)/g, '<span class="text-zinc-400">(e.g., "<span class="text-emerald-400">$1</span>")</span>');
+      
       // First handle bold text with colon pattern (e.g., **Task Name:**)
-      let formattedText = text.replace(/\*\*(.*?):\*\*/g, '<strong class="font-semibold text-white">$1:</strong>');
+      formattedText = formattedText.replace(/\*\*([^*:]+):\*\*/g, '<strong class="font-semibold text-white">$1:</strong>');
       
       // Then handle regular bold text **text** or __text__
-      formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-white">$1</strong>');
-      formattedText = formattedText.replace(/__(.*?)__/g, '<strong class="font-semibold text-white">$1</strong>');
+      formattedText = formattedText.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-semibold text-white">$1</strong>');
+      formattedText = formattedText.replace(/__([^_]+)__/g, '<strong class="font-semibold text-white">$1</strong>');
       
       // Handle italic text *text* or _text_
-      formattedText = formattedText.replace(/\*(.*?)\*/g, '<em class="italic text-zinc-200">$1</em>');
-      formattedText = formattedText.replace(/_(.*?)_/g, '<em class="italic text-zinc-200">$1</em>');
+      formattedText = formattedText.replace(/\*([^*]+)\*/g, '<em class="italic text-zinc-200">$1</em>');
+      formattedText = formattedText.replace(/_([^_]+)_/g, '<em class="italic text-zinc-200">$1</em>');
       
       // Handle inline code `code`
-      formattedText = formattedText.replace(/`(.*?)`/g, '<code class="bg-zinc-800 px-1.5 py-0.5 rounded text-sm font-mono text-emerald-400">$1</code>');
+      formattedText = formattedText.replace(/`([^`]+)`/g, '<code class="bg-zinc-800 px-1.5 py-0.5 rounded text-sm font-mono text-emerald-400">$1</code>');
+      
+      // Handle horizontal rules
+      formattedText = formattedText.replace(/^---$/gm, '<div class="my-6"><div class="h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent"></div></div>');
       
       return formattedText;
     };
@@ -709,7 +797,7 @@ const AssistantMessage = ({ message, onRegenerate, onFeedback }: {
               <TypingIndicator />
             ) : (
               <div className="prose prose-invert max-w-none break-words text-[13px] sm:text-base leading-relaxed">
-                {formatMessageContent(message.content)}
+                <StructuredMessage content={message.content} />
               </div>
             )}
           </div>
@@ -1188,7 +1276,7 @@ export default function AIPage() {
   };
 
   const handleSend = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || isLoading) return;
 
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
@@ -1197,6 +1285,8 @@ export default function AIPage() {
       router.push("/login");
       return;
     }
+
+    setIsLoading(true);
 
     const newUserMessage: Message = {
       role: "user",
@@ -1300,11 +1390,13 @@ This will help me give you a better response!`,
           timestamp: new Date(),
         }
       ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !isLoading) {
       e.preventDefault();
       handleSend();
     }
@@ -1443,8 +1535,13 @@ This will help me give you a better response!`,
             </div>
             <button
               onClick={handleSend}
-              disabled={!message.trim() && !uploadingImage || isLoading}
-              className="h-[44px] w-[44px] flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20"
+              disabled={!message.trim() || isLoading}
+              className={cn(
+                "h-[44px] w-[44px] flex items-center justify-center bg-gradient-to-br text-white rounded-xl transition-all duration-300 shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20",
+                isLoading 
+                  ? "bg-zinc-700 cursor-not-allowed opacity-50"
+                  : "from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700"
+              )}
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

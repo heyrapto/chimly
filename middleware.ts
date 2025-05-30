@@ -14,15 +14,6 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // For login/register routes when already authenticated
-  if (
-    (request.nextUrl.pathname === "/login" ||
-      request.nextUrl.pathname === "/register") &&
-    token
-  ) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
   // Set token in response headers
   const response = NextResponse.next();
   if (token) {

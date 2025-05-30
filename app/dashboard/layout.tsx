@@ -25,7 +25,7 @@ import {
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-
+import ProtectedRoute from "@/components/ui/routes/protected";
 // Quick reply suggestions based on context
 const quickReplies = {
   general: [
@@ -82,11 +82,11 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   useEffect(() => {
+    // Only fetch user info if we have credentials
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
 
     if (!token || !userId) {
-      window.location.href = "/login";
       return;
     }
 
@@ -107,7 +107,6 @@ export default function DashboardLayout({
         }
 
         const data = await response.json();
-        console.log(data);
         if (data) {
           setUserInfo({
             name: data.data.username,
@@ -121,7 +120,7 @@ export default function DashboardLayout({
     };
 
     fetchUserInfo();
-  }, [router]);
+  }, []);
 
   const isActive = (path: string) => {
     if (path === '/dashboard') {
@@ -131,6 +130,7 @@ export default function DashboardLayout({
   };
 
   return (
+    <ProtectedRoute>
     <div className="flex h-screen overflow-hidden bg-black">
       {/* Sidebar with Mobile Toggle */}
       <div className="relative z-50">
@@ -328,11 +328,7 @@ export default function DashboardLayout({
                   {userInfo?.name?.charAt(0) || 'U'}
                 </span>
               </div>
-              <div className="flex-1 min-w-0" onClick={() => {
-                localStorage.removeItem("token");
-                localStorage.removeItem("userId");
-                window.location.href = "/login";
-              }}>
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1">
                   <p className="text-sm font-medium text-white truncate">
                     {userInfo?.name || 'Loading...'}
@@ -345,7 +341,16 @@ export default function DashboardLayout({
                   {userInfo?.email || 'Loading...'}
                 </p>
               </div>
-              <LogOut className="w-4 h-4 text-zinc-400"/>
+              <button
+                onClick={() => {
+                  localStorage.clear(); // Clear all localStorage items
+                  router.replace("/login");
+                }}
+                className="p-2 text-zinc-400 hover:text-white transition-colors"
+                title="Logout"
+              >
+                <LogOut className="w-4 h-4"/>
+              </button>
             </div>
           </div>
         </aside>
@@ -487,5 +492,6 @@ export default function DashboardLayout({
         </main>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

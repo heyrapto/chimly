@@ -33,6 +33,8 @@ export default function SettingsPage() {
   const [isVerified, setIsVerified] = useState(false);
   const [enableCalls, setEnableCalls] = useState(false);
   const [enableEmail, setEnableEmail] = useState(true);
+  const [callForAllReminders, setCallForAllReminders] = useState(false);
+  const [preferredVoice, setPreferredVoice] = useState("alice");
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 w-full">
@@ -222,6 +224,51 @@ export default function SettingsPage() {
                     enableEmail ? "right-1" : "left-1"
                   }`} />
                 </button>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-white font-medium flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-emerald-500" />
+                  Reminder Settings
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex items-center justify-between p-4 bg-zinc-800 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Phone className="w-5 h-5 text-zinc-400" />
+                      <div>
+                        <p className="text-white font-medium">Call For All Reminders</p>
+                        <p className="text-sm text-zinc-400">
+                          Enable voice calls for every reminder
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      className={`relative w-12 h-6 rounded-full transition-colors ${
+                        callForAllReminders ? "bg-emerald-600" : "bg-zinc-700"
+                      } ${currentPlan !== "pro" ? "opacity-50 cursor-not-allowed" : ""}`}
+                      onClick={() => currentPlan === "pro" && setCallForAllReminders(!callForAllReminders)}
+                    >
+                      <div className={`absolute w-4 h-4 rounded-full bg-white top-1 transition-all ${
+                        callForAllReminders ? "right-1" : "left-1"
+                      }`} />
+                    </button>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm text-zinc-400 mb-1">Preferred Voice</label>
+                    <Select value={preferredVoice} onValueChange={setPreferredVoice}>
+                      <SelectTrigger className="w-full bg-zinc-800 border-zinc-700">
+                        <SelectValue placeholder="Select voice" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-900 border-zinc-800">
+                        <SelectItem value="alice">Alice</SelectItem>
+                        <SelectItem value="bob">Bob</SelectItem>
+                        <SelectItem value="charlie">Charlie</SelectItem>
+                        <SelectItem value="david">David</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-4">
