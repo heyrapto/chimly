@@ -1425,7 +1425,6 @@ This will help me give you a better response!`,
                 </div>
               ))
             )}
-            {isLoading && <MessageSkeleton />}
             <div ref={messagesEndRef} />
           </div>
         </div>
