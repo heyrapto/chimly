@@ -882,7 +882,6 @@ const UserMessage = ({ message }: { message: Message }) => (
     className="flex justify-end group"
   >
     <div className="flex gap-2 sm:gap-3 w-fit sm:w-auto sm:max-w-[85%]">
-      {/* Message Content */}
       <div className="flex-1 min-w-0">
         <motion.div
           whileHover={{ scale: 1.01 }}
@@ -892,20 +891,24 @@ const UserMessage = ({ message }: { message: Message }) => (
           {message.attachments?.map((attachment, index) => (
             <div key={index} className="mb-3">
               {attachment.type === "image" && (
-                <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-zinc-900">
+                <div className="relative w-full max-w-sm rounded-lg overflow-hidden">
                   <Image
                     src={attachment.url}
                     alt="Uploaded image"
-                    fill
+                    width={400}
+                    height={300}
                     className="object-contain"
                   />
                 </div>
               )}
               {attachment.type === "audio" && (
-                <div className="rounded-lg overflow-hidden bg-black/20 p-3">
+                <div className="flex items-center gap-2 text-white/90">
+                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                    <Mic className="w-4 h-4" />
+                  </div>
                   <audio 
                     controls 
-                    className="w-full h-8 [&::-webkit-media-controls-panel]:bg-black/30 [&::-webkit-media-controls-current-time-display]:text-white [&::-webkit-media-controls-time-remaining-display]:text-white [&::-webkit-media-controls-timeline]:text-emerald-500 [&::-webkit-media-controls-play-button]:text-emerald-500 [&::-webkit-media-controls-play-button]:hover:text-emerald-400 [&::-webkit-media-controls-mute-button]:text-emerald-500 [&::-webkit-media-controls-mute-button]:hover:text-emerald-400"
+                    className="w-[200px] h-8"
                   >
                     <source src={attachment.url} type="audio/webm" />
                     Your browser does not support the audio element.
@@ -951,7 +954,6 @@ const UserMessage = ({ message }: { message: Message }) => (
         </motion.div>
       </div>
       
-      {/* Avatar */}
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
@@ -963,6 +965,19 @@ const UserMessage = ({ message }: { message: Message }) => (
     </div>
   </motion.div>
 );
+
+// Add this helper function before the AIPage component
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64String = reader.result?.toString().split(',')[1];
+      resolve(base64String || '');
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
 
 export default function AIPage() {
   const [message, setMessage] = useState("");
@@ -1191,7 +1206,6 @@ export default function AIPage() {
 
   const handleVoiceRecording = async (blob: Blob) => {
     try {
-      const audioUrl = URL.createObjectURL(blob);
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
 
@@ -1199,11 +1213,9 @@ export default function AIPage() {
         router.push("/login");
         return;
       }
-      
-      // Create form data
-      const formData = new FormData();
-      formData.append('media', blob, 'recording.webm');
-      formData.append('userId', userId);
+
+      // Convert blob to base64
+      const base64Data = await blobToBase64(blob);
       
       // Add message with local audio preview
       const newMessage: Message = {
@@ -1213,7 +1225,7 @@ export default function AIPage() {
         status: "sending",
         attachments: [{
           type: "audio",
-          url: audioUrl
+          url: URL.createObjectURL(blob)
         }]
       };
       
@@ -1229,15 +1241,23 @@ export default function AIPage() {
 
       setMessages(prev => [...prev, typingMessage]);
 
-      // Send to backend using the same endpoint as regular messages
+      // Send to backend
       const response = await fetch(
         "https://chimlybackendmain.onrender.com/api/schedule",
         {
           method: "POST",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: formData
+          body: JSON.stringify({
+            userId: userId,
+            input: "",
+            mediaData: {
+              data: base64Data,
+              mimeType: blob.type
+            }
+          }),
         }
       );
 
@@ -1257,15 +1277,7 @@ export default function AIPage() {
             if (data.requiresClarification) {
               return {
                 role: "assistant",
-                content: `# ❓ I Need More Information
-
-I'm not quite sure I understood your voice message. Could you please:
-
-- Try speaking more clearly
-- Provide more details about what you need
-- Or type your request instead
-
-This will help me assist you better!`,
+                content: `I'm not quite sure I understood your voice message. Could you please try speaking more clearly or type your request instead?`,
                 timestamp: new Date(),
               };
             }
@@ -1281,7 +1293,6 @@ This will help me assist you better!`,
 
     } catch (error) {
       console.error('Error handling voice recording:', error);
-      // Show error message
       setMessages(prev => [
         ...prev.slice(0, -1), // Remove typing indicator
         {
