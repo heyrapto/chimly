@@ -1107,12 +1107,26 @@ export default function AIPage() {
     try {
       setUploadingImage(true);
       const imageUrl = URL.createObjectURL(file);
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      if (!token || !userId) {
+        router.push("/login");
+        return;
+      }
       
+      // Create form data
+      const formData = new FormData();
+      formData.append('media', file);
+      formData.append('userId', userId);
+      formData.append('input', 'Analyze this image');
+
+      // Add message with local image preview
       const newMessage: Message = {
         role: "user",
         content: "",
         timestamp: new Date(),
-        status: "sent",
+        status: "sending",
         attachments: [{
           type: "image",
           url: imageUrl
@@ -1121,7 +1135,7 @@ export default function AIPage() {
       
       setMessages(prev => [...prev, newMessage]);
 
-      // Add AI response for image
+      // Add typing indicator
       const typingMessage: Message = {
         role: "assistant",
         content: "",
@@ -1131,22 +1145,45 @@ export default function AIPage() {
 
       setMessages(prev => [...prev, typingMessage]);
 
-      // Here you would typically upload the image to your server
-      // and get AI response for the image
-      // For now, we'll just show a placeholder response
-      setTimeout(() => {
-        setMessages(prev => [
-          ...prev.slice(0, -1),
-          {
-            role: "assistant",
-            content: "I can see the image you've shared. What would you like to know about it?",
-            timestamp: new Date()
-          }
-        ]);
-      }, 1000);
+      // Send to backend
+      const response = await fetch(
+        "https://chimlybackendmain.onrender.com/api/chat",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to process image");
+      }
+
+      const data = await response.json();
+      
+      // Update messages with AI response
+      setMessages(prev => [
+        ...prev.slice(0, -1), // Remove typing indicator
+        {
+          role: "assistant",
+          content: data.message || "I've analyzed the image. What would you like to know about it?",
+          timestamp: new Date()
+        }
+      ]);
 
     } catch (error) {
       console.error('Error uploading image:', error);
+      // Show error message
+      setMessages(prev => [
+        ...prev.slice(0, -1), // Remove typing indicator
+        {
+          role: "assistant",
+          content: "Sorry, I had trouble processing the image. Please try again.",
+          timestamp: new Date()
+        }
+      ]);
     } finally {
       setUploadingImage(false);
     }
@@ -1155,12 +1192,25 @@ export default function AIPage() {
   const handleVoiceRecording = async (blob: Blob) => {
     try {
       const audioUrl = URL.createObjectURL(blob);
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      if (!token || !userId) {
+        router.push("/login");
+        return;
+      }
       
+      // Create form data
+      const formData = new FormData();
+      formData.append('media', blob, 'recording.webm');
+      formData.append('userId', userId);
+      
+      // Add message with local audio preview
       const newMessage: Message = {
         role: "user",
         content: "",
         timestamp: new Date(),
-        status: "sent",
+        status: "sending",
         attachments: [{
           type: "audio",
           url: audioUrl
@@ -1169,7 +1219,7 @@ export default function AIPage() {
       
       setMessages(prev => [...prev, newMessage]);
 
-      // Add AI response for voice recording
+      // Add typing indicator
       const typingMessage: Message = {
         role: "assistant",
         content: "",
@@ -1179,22 +1229,67 @@ export default function AIPage() {
 
       setMessages(prev => [...prev, typingMessage]);
 
-      // Here you would typically upload the audio to your server
-      // and get AI response for the voice recording
-      // For now, we'll just show a placeholder response
-      setTimeout(() => {
-        setMessages(prev => [
-          ...prev.slice(0, -1),
-          {
-            role: "assistant",
-            content: "I've received your voice message. What would you like me to do with it?",
-            timestamp: new Date()
+      // Send to backend using the same endpoint as regular messages
+      const response = await fetch(
+        "https://chimlybackendmain.onrender.com/api/schedule",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to process voice recording");
+      }
+
+      const data = await response.json();
+      
+      // Update messages with AI response
+      setMessages(prev => 
+        prev.map((msg, index) => {
+          if (index === prev.length - 2) { // User message
+            return { ...msg, status: "delivered" };
           }
-        ]);
-      }, 1000);
+          if (index === prev.length - 1) { // Replace typing indicator
+            if (data.requiresClarification) {
+              return {
+                role: "assistant",
+                content: `# ❓ I Need More Information
+
+I'm not quite sure I understood your voice message. Could you please:
+
+- Try speaking more clearly
+- Provide more details about what you need
+- Or type your request instead
+
+This will help me assist you better!`,
+                timestamp: new Date(),
+              };
+            }
+            return {
+              role: "assistant",
+              content: data.message,
+              timestamp: new Date(),
+            };
+          }
+          return msg;
+        })
+      );
 
     } catch (error) {
       console.error('Error handling voice recording:', error);
+      // Show error message
+      setMessages(prev => [
+        ...prev.slice(0, -1), // Remove typing indicator
+        {
+          role: "assistant",
+          content: "Sorry, I had trouble processing your voice message. Please try again or type your message instead.",
+          timestamp: new Date()
+        }
+      ]);
     }
   };
 
