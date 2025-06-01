@@ -404,57 +404,71 @@ const ImageUpload = ({ onUpload }: { onUpload: (file: File) => void }) => {
 };
 
 // Voice Recorder Component
-const VoiceRecorder = ({ onRecordingComplete }: { onRecordingComplete: (blob: Blob) => void }) => {
+const VoiceRecorder = ({ onRecordingComplete }: { onRecordingComplete: (transcript: string) => void }) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [transcript, setTranscript] = useState('');
+  const recognitionRef = useRef<any>(null);
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      chunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          chunksRef.current.push(e.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        onRecordingComplete(blob);
-        stream.getTracks().forEach(track => track.stop());
-        setRecordingTime(0);
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-      timerRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
+  const startRecording = () => {
+    // Check if browser supports speech recognition
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('Your browser does not support speech recognition. Please use Chrome.');
+      return;
     }
+
+    const recognition = new (window as any).webkitSpeechRecognition();
+    recognitionRef.current = recognition;
+    
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+      setTranscript('');
+    };
+
+    recognition.onresult = (event: any) => {
+      let finalTranscript = '';
+      let interimTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+
+      setTranscript(finalTranscript || interimTranscript);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsRecording(false);
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+      if (transcript.trim()) {
+        onRecordingComplete(transcript);
+      }
+    };
+
+    recognition.start();
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
     }
   };
 
   useEffect(() => {
     return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
       }
     };
   }, []);
@@ -474,7 +488,7 @@ const VoiceRecorder = ({ onRecordingComplete }: { onRecordingComplete: (blob: Bl
         {isRecording ? (
           <>
             <span className="animate-pulse">●</span>
-            <span className="text-sm">{recordingTime}s</span>
+            <span className="text-sm">{transcript ? 'Recording...' : 'Listening...'}</span>
           </>
         ) : (
           <Mic className="w-5 h-5" />
@@ -1214,7 +1228,7 @@ export default function AIPage() {
     }
   };
 
-  const handleVoiceRecording = async (blob: Blob) => {
+  const handleVoiceRecording = async (transcript: string) => {
     try {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
@@ -1223,20 +1237,13 @@ export default function AIPage() {
         router.push("/login");
         return;
       }
-
-      // Convert blob to base64
-      const base64Data = await blobToBase64(blob);
       
-      // Add message with local audio preview
+      // Add message with transcript
       const newMessage: Message = {
         role: "user",
-        content: "",
+        content: transcript,
         timestamp: new Date(),
-        status: "sending",
-        attachments: [{
-          type: "audio",
-          url: URL.createObjectURL(blob)
-        }]
+        status: "sending"
       };
       
       setMessages(prev => [...prev, newMessage]);
@@ -1262,17 +1269,17 @@ export default function AIPage() {
           },
           body: JSON.stringify({
             userId: userId,
-            input: "",
+            input: transcript,
             mediaData: {
-              data: base64Data,
-              mimeType: blob.type
+              type: 'voice',
+              transcription: transcript
             }
           }),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to process voice recording");
+        throw new Error("Failed to process voice message");
       }
 
       const data = await response.json();
@@ -1284,13 +1291,6 @@ export default function AIPage() {
             return { ...msg, status: "delivered" };
           }
           if (index === prev.length - 1) { // Replace typing indicator
-            if (data.requiresClarification) {
-              return {
-                role: "assistant",
-                content: `I'm not quite sure I understood your voice message. Could you please try speaking more clearly or type your request instead?`,
-                timestamp: new Date(),
-              };
-            }
             return {
               role: "assistant",
               content: data.message,
@@ -1302,7 +1302,7 @@ export default function AIPage() {
       );
 
     } catch (error) {
-      console.error('Error handling voice recording:', error);
+      console.error('Error handling voice message:', error);
       setMessages(prev => [
         ...prev.slice(0, -1), // Remove typing indicator
         {
