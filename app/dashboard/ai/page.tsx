@@ -1069,10 +1069,10 @@ export default function AIPage() {
   // Update active category based on last message
   useEffect(() => {
     if (messages.length > 0) {
-      const lastMessage = messages[messages.length - 1].content.toLowerCase();
-      if (lastMessage.includes("task") || lastMessage.includes("todo")) {
+      const lastMessage = messages[messages.length - 1].content?.toLowerCase();
+      if (lastMessage?.includes("task") || lastMessage?.includes("todo")) {
         setActiveCategory("task");
-      } else if (lastMessage.includes("schedule") || lastMessage.includes("calendar")) {
+      } else if (lastMessage?.includes("schedule") || lastMessage?.includes("calendar")) {
         setActiveCategory("schedule");
       } else {
         setActiveCategory("general");
