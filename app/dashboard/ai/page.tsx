@@ -1121,7 +1121,6 @@ export default function AIPage() {
   const handleImageUpload = async (file: File) => {
     try {
       setUploadingImage(true);
-      const imageUrl = URL.createObjectURL(file);
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
 
@@ -1129,13 +1128,10 @@ export default function AIPage() {
         router.push("/login");
         return;
       }
-      
-      // Create form data
-      const formData = new FormData();
-      formData.append('media', file);
-      formData.append('userId', userId);
-      formData.append('input', 'Analyze this image');
 
+      // Convert image to base64
+      const base64Data = await blobToBase64(file);
+      
       // Add message with local image preview
       const newMessage: Message = {
         role: "user",
@@ -1144,7 +1140,7 @@ export default function AIPage() {
         status: "sending",
         attachments: [{
           type: "image",
-          url: imageUrl
+          url: URL.createObjectURL(file)
         }]
       };
       
@@ -1162,13 +1158,21 @@ export default function AIPage() {
 
       // Send to backend
       const response = await fetch(
-        "https://chimlybackendmain.onrender.com/api/chat",
+        "https://chimlybackendmain.onrender.com/api/schedule",
         {
           method: "POST",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: formData
+          body: JSON.stringify({
+            userId: userId,
+            input: "",
+            mediaData: {
+              data: base64Data,
+              mimeType: file.type
+            }
+          }),
         }
       );
 
@@ -1179,18 +1183,24 @@ export default function AIPage() {
       const data = await response.json();
       
       // Update messages with AI response
-      setMessages(prev => [
-        ...prev.slice(0, -1), // Remove typing indicator
-        {
-          role: "assistant",
-          content: data.message || "I've analyzed the image. What would you like to know about it?",
-          timestamp: new Date()
-        }
-      ]);
+      setMessages(prev => 
+        prev.map((msg, index) => {
+          if (index === prev.length - 2) { // User message
+            return { ...msg, status: "delivered" };
+          }
+          if (index === prev.length - 1) { // Replace typing indicator
+            return {
+              role: "assistant",
+              content: data.message || "I've analyzed the image. What would you like to know about it?",
+              timestamp: new Date()
+            };
+          }
+          return msg;
+        })
+      );
 
     } catch (error) {
       console.error('Error uploading image:', error);
-      // Show error message
       setMessages(prev => [
         ...prev.slice(0, -1), // Remove typing indicator
         {
